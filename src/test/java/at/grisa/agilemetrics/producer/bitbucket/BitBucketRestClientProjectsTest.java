@@ -1,11 +1,16 @@
 package at.grisa.agilemetrics.producer.bitbucket;
 
-import at.grisa.agilemetrics.mockserver.MockServer;
-import org.junit.BeforeClass;
+import at.grisa.agilemetrics.producer.bitbucket.restentities.Project;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockserver.client.server.MockServerClient;
 import org.mockserver.junit.MockServerRule;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockserver.model.Header.header;
@@ -16,16 +21,12 @@ public class BitBucketRestClientProjectsTest {
     @Rule
     public MockServerRule mockServerRule = new MockServerRule(this);
     private MockServerClient mockServerClient;
+    private Project[] projects;
 
-    @BeforeClass
-    public static void startMockServer() {
-        MockServer.getInstance().startClass(BitBucketRestClientProjectsTest.class);
+    @Before
+    public void loadProjectsFromMockServer() throws IOException, URISyntaxException {
+        String responseBody = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("bitbucket/projects.js").toURI())));
 
-
-    }
-
-    @Test
-    public void testGetAllProjects() {
         mockServerClient.when(
                 request()
                         .withMethod("GET")
@@ -35,32 +36,23 @@ public class BitBucketRestClientProjectsTest {
                         response()
                                 .withStatusCode(200)
                                 .withHeader(header("Content-Type", "application/json; charset=utf-8"))
-                                .withBody("{\n" +
-                                        "    \"size\": 1,\n" +
-                                        "    \"limit\": 25,\n" +
-                                        "    \"isLastPage\": true,\n" +
-                                        "    \"values\": [\n" +
-                                        "        {\n" +
-                                        "            \"key\": \"PRJ\",\n" +
-                                        "            \"id\": 1,\n" +
-                                        "            \"name\": \"My Cool Project\",\n" +
-                                        "            \"description\": \"The description for my cool project.\",\n" +
-                                        "            \"public\": true,\n" +
-                                        "            \"type\": \"NORMAL\",\n" +
-                                        "            \"links\": {\n" +
-                                        "                \"self\": [\n" +
-                                        "                    {\n" +
-                                        "                        \"href\": \"http://link/to/project\"\n" +
-                                        "                    }\n" +
-                                        "                ]\n" +
-                                        "            }\n" +
-                                        "        }\n" +
-                                        "    ],\n" +
-                                        "    \"start\": 0\n" +
-                                        "}")
+                                .withBody(responseBody)
                 );
 
         BitBucketRestClient client = new BitBucketRestClient("http://localhost:" + mockServerRule.getPort(), "user", "password");
-        assertEquals("1 project in total", client.getProjects().length, 1);
+        projects = client.getProjects();
+    }
+
+    @Test
+    public void countRepos() {
+        assertEquals("1 project in total", projects.length, 1);
+    }
+
+    @Test
+    public void checkData() {
+        Project project = projects[0];
+        assertEquals("check project id", project.getId(), new Long(1));
+        assertEquals("check project key", project.getKey(), "PRJ");
+        assertEquals("check project name", project.getName(), "My Cool Project");
     }
 }

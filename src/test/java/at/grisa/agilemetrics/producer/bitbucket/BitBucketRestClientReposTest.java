@@ -1,9 +1,16 @@
 package at.grisa.agilemetrics.producer.bitbucket;
 
+import at.grisa.agilemetrics.producer.bitbucket.restentities.Repo;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockserver.client.server.MockServerClient;
 import org.mockserver.junit.MockServerRule;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockserver.model.Header.header;
@@ -14,9 +21,12 @@ public class BitBucketRestClientReposTest {
     @Rule
     public MockServerRule mockServerRule = new MockServerRule(this);
     private MockServerClient mockServerClient;
+    private Repo[] repos;
 
-    @Test
-    public void testGetAllRepos() {
+    @Before
+    public void loadReposFromMockServer() throws URISyntaxException, IOException {
+        String responseBody = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("bitbucket/repos.js").toURI())));
+
         mockServerClient.when(
                 request()
                         .withMethod("GET")
@@ -26,60 +36,24 @@ public class BitBucketRestClientReposTest {
                         response()
                                 .withStatusCode(200)
                                 .withHeader(header("Content-Type", "application/json; charset=utf-8"))
-                                .withBody("{\n" +
-                                        "    \"size\": 1,\n" +
-                                        "    \"limit\": 25,\n" +
-                                        "    \"isLastPage\": true,\n" +
-                                        "    \"values\": [\n" +
-                                        "        {\n" +
-                                        "            \"slug\": \"my-repo\",\n" +
-                                        "            \"id\": 1,\n" +
-                                        "            \"name\": \"My repo\",\n" +
-                                        "            \"scmId\": \"git\",\n" +
-                                        "            \"state\": \"AVAILABLE\",\n" +
-                                        "            \"statusMessage\": \"Available\",\n" +
-                                        "            \"forkable\": true,\n" +
-                                        "            \"project\": {\n" +
-                                        "                \"key\": \"PRJ\",\n" +
-                                        "                \"id\": 1,\n" +
-                                        "                \"name\": \"My Cool Project\",\n" +
-                                        "                \"description\": \"The description for my cool project.\",\n" +
-                                        "                \"public\": true,\n" +
-                                        "                \"type\": \"NORMAL\",\n" +
-                                        "                \"links\": {\n" +
-                                        "                    \"self\": [\n" +
-                                        "                        {\n" +
-                                        "                            \"href\": \"http://link/to/project\"\n" +
-                                        "                        }\n" +
-                                        "                    ]\n" +
-                                        "                }\n" +
-                                        "            },\n" +
-                                        "            \"public\": true,\n" +
-                                        "            \"links\": {\n" +
-                                        "                \"clone\": [\n" +
-                                        "                    {\n" +
-                                        "                        \"href\": \"ssh://git@<baseURL>/PRJ/my-repo.git\",\n" +
-                                        "                        \"name\": \"ssh\"\n" +
-                                        "                    },\n" +
-                                        "                    {\n" +
-                                        "                        \"href\": \"https://<baseURL>/scm/PRJ/my-repo.git\",\n" +
-                                        "                        \"name\": \"http\"\n" +
-                                        "                    }\n" +
-                                        "                ],\n" +
-                                        "                \"self\": [\n" +
-                                        "                    {\n" +
-                                        "                        \"href\": \"http://link/to/repository\"\n" +
-                                        "                    }\n" +
-                                        "                ]\n" +
-                                        "            }\n" +
-                                        "        }\n" +
-                                        "    ],\n" +
-                                        "    \"start\": 0\n" +
-                                        "}")
+                                .withBody(responseBody)
                 );
 
         String projectKey = "PRJ";
         BitBucketRestClient client = new BitBucketRestClient("http://localhost:" + mockServerRule.getPort(), "user", "password");
-        assertEquals("1 project in total", client.getRepos(projectKey).length, 1);
+        repos = client.getRepos(projectKey);
+    }
+
+    @Test
+    public void countRepos() {
+        assertEquals("1 repo in total", repos.length, 1);
+    }
+
+    @Test
+    public void checkData() {
+        Repo repo = repos[0];
+        assertEquals("check repo id", repo.getId(), new Long(1));
+        assertEquals("check repo slug", repo.getSlug(), "my-repo");
+        assertEquals("check repo name", repo.getName(), "My repo");
     }
 }

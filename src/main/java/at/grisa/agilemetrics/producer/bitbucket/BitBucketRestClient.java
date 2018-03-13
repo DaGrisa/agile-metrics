@@ -8,6 +8,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.client.support.BasicAuthorizationInterceptor;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.stream.Stream;
+
 public class BitBucketRestClient {
     private String hostUrl;
     private String username;
@@ -26,15 +28,23 @@ public class BitBucketRestClient {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getInterceptors().add(new BasicAuthorizationInterceptor(username, password));
 
-        PagedEntities<Project> projects = restTemplate.exchange(hostUrl + PROJECTS_URL,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<PagedEntities<Project>>() {
-                }).getBody();
+        Project[] projects = {};
+        PagedEntities<Project> projectsResponse;
+        Long startElement = 0L;
 
-        // TODO add more projects, if exists
+        do {
+            projectsResponse = restTemplate.exchange(hostUrl + PROJECTS_URL + "?start=" + startElement,
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<PagedEntities<Project>>() {
+                    }).getBody();
 
-        return projects.getValues();
+            // merge arrays and set next start element
+            projects = Stream.of(projects, projectsResponse.getValues()).flatMap(Stream::of).toArray(Project[]::new);
+            startElement = projectsResponse.getNextPageStart();
+        } while (!projectsResponse.getIsLastPage());
+
+        return projects;
     }
 
     public Repo[] getRepos(String projectKey) {
