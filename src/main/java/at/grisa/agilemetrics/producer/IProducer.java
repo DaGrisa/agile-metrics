@@ -1,5 +1,7 @@
 package at.grisa.agilemetrics.producer;
 
+import at.grisa.agilemetrics.cron.MeasurementQueue;
+
 public interface IProducer {
-    void notification(String message);
+    void produce(MeasurementQueue measurementQueue);
 }

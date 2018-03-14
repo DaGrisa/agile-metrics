@@ -1,6 +1,6 @@
-package at.grisa.agilemetrics.producer.bitbucket;
+package at.grisa.agilemetrics.producer.bitbucketserver;
 
-import at.grisa.agilemetrics.producer.bitbucket.restentities.Commit;
+import at.grisa.agilemetrics.producer.bitbucketserver.restentities.Project;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -11,26 +11,27 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockserver.model.Header.header;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
-public class BitBucketRestClientCommitsTest {
+public class BitBucketServerRestClientProjectsTest {
     @Rule
     public MockServerRule mockServerRule = new MockServerRule(this);
     private MockServerClient mockServerClient;
-    private Commit[] commits;
+    private Collection<Project> projects;
 
     @Before
-    public void loadCommitsFromMockServer() throws URISyntaxException, IOException {
-        String responseBody = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("bitbucket/commits.js").toURI())));
+    public void loadProjectsFromMockServer() throws IOException, URISyntaxException {
+        String responseBody = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("bitbucket/projects.js").toURI())));
 
         mockServerClient.when(
                 request()
                         .withMethod("GET")
-                        .withPath("/rest/api/1.0/projects/PRJ/repos/REPO/commits")
+                        .withPath("/rest/api/1.0/projects")
         )
                 .respond(
                         response()
@@ -39,21 +40,20 @@ public class BitBucketRestClientCommitsTest {
                                 .withBody(responseBody)
                 );
 
-        String projectKey = "PRJ";
-        String repositorySlug = "REPO";
-        BitBucketRestClient client = new BitBucketRestClient("http://localhost:" + mockServerRule.getPort(), "user", "password");
-        commits = client.getCommits(projectKey, repositorySlug);
+        BitBucketServerRestClient client = new BitBucketServerRestClient("http://localhost:" + mockServerRule.getPort(), "user", "password");
+        projects = client.getProjects();
     }
 
     @Test
-    public void countCommits() {
-        assertEquals("1 commit in total", 1, commits.length);
+    public void countRepos() {
+        assertEquals("1 project in total", 1, projects.size());
     }
 
     @Test
     public void checkData() {
-        Commit commit = commits[0];
-        assertEquals("check commit id", "def0123abcdef4567abcdef8987abcdef6543abc", commit.getId());
-        assertEquals("check commit message", "More work on feature 1", commit.getMessage());
+        Project project = projects.iterator().next();
+        assertEquals("check project id", new Long(1), project.getId());
+        assertEquals("check project key", "PRJ", project.getKey());
+        assertEquals("check project name", "My Cool Project", project.getName());
     }
 }

@@ -1,6 +1,6 @@
-package at.grisa.agilemetrics.producer.bitbucket;
+package at.grisa.agilemetrics.producer.bitbucketserver;
 
-import at.grisa.agilemetrics.producer.bitbucket.restentities.Repository;
+import at.grisa.agilemetrics.producer.bitbucketserver.restentities.Repository;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -11,17 +11,18 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockserver.model.Header.header;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
-public class BitBucketRestClientPagedEntitiesTest {
+public class BitBucketServerRestClientPagedEntitiesTest {
     @Rule
     public MockServerRule mockServerRule = new MockServerRule(this);
     private MockServerClient mockServerClient;
-    private Repository[] repositories;
+    private Collection<Repository> repositories;
 
     @Before
     public void loadReposFromMockServer() throws URISyntaxException, IOException {
@@ -54,15 +55,15 @@ public class BitBucketRestClientPagedEntitiesTest {
                                 .withBody(responseBodyPage2)
                 );
 
-        BitBucketRestClient client = new BitBucketRestClient("http://localhost:" + mockServerRule.getPort(), "user", "password");
+        BitBucketServerRestClient client = new BitBucketServerRestClient("http://localhost:" + mockServerRule.getPort(), "user", "password");
 
         String projectKey = "PAGED";
-        repositories = client.getRepos(projectKey);
+        repositories = client.getRepositories(projectKey);
     }
 
     @Test
     public void countRepos() {
-        assertEquals("5 values in total", 5, repositories.length);
+        assertEquals("5 values in total", 5, repositories.size());
     }
 
 }

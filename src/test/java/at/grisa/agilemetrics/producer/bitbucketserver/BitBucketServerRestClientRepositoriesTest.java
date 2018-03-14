@@ -1,6 +1,6 @@
-package at.grisa.agilemetrics.producer.bitbucket;
+package at.grisa.agilemetrics.producer.bitbucketserver;
 
-import at.grisa.agilemetrics.producer.bitbucket.restentities.Repository;
+import at.grisa.agilemetrics.producer.bitbucketserver.restentities.Repository;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -11,17 +11,18 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockserver.model.Header.header;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
-public class BitBucketRestClientRepositoriesTest {
+public class BitBucketServerRestClientRepositoriesTest {
     @Rule
     public MockServerRule mockServerRule = new MockServerRule(this);
     private MockServerClient mockServerClient;
-    private Repository[] repositories;
+    private Collection<Repository> repositories;
 
     @Before
     public void loadReposFromMockServer() throws URISyntaxException, IOException {
@@ -40,18 +41,18 @@ public class BitBucketRestClientRepositoriesTest {
                 );
 
         String projectKey = "PRJ";
-        BitBucketRestClient client = new BitBucketRestClient("http://localhost:" + mockServerRule.getPort(), "user", "password");
-        repositories = client.getRepos(projectKey);
+        BitBucketServerRestClient client = new BitBucketServerRestClient("http://localhost:" + mockServerRule.getPort(), "user", "password");
+        repositories = client.getRepositories(projectKey);
     }
 
     @Test
     public void countRepos() {
-        assertEquals("1 repo in total", 1, repositories.length);
+        assertEquals("1 repo in total", 1, repositories.size());
     }
 
     @Test
     public void checkData() {
-        Repository repository = repositories[0];
+        Repository repository = repositories.iterator().next();
         assertEquals("check repository id", new Long(1), repository.getId());
         assertEquals("check repository slug", "my-repo", repository.getSlug());
         assertEquals("check repository name", "My repo", repository.getName());

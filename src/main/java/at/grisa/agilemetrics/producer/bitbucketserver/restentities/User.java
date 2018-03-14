@@ -1,4 +1,4 @@
-package at.grisa.agilemetrics.producer.bitbucket.restentities;
+package at.grisa.agilemetrics.producer.bitbucketserver.restentities;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

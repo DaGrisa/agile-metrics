@@ -1,13 +1,18 @@
 package at.grisa.agilemetrics.cron;
 
 import at.grisa.agilemetrics.consumer.IConsumer;
+import at.grisa.agilemetrics.entity.Measurement;
 import at.grisa.agilemetrics.producer.IProducer;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.LinkedList;
 
 public class CronObserver {
     private LinkedList<IConsumer> consumers;
     private LinkedList<IProducer> producers;
+
+    @Autowired
+    MeasurementQueue measurementQueue;
 
     public CronObserver() {
         consumers = new LinkedList<>();
@@ -26,15 +31,16 @@ public class CronObserver {
         }
     }
 
-    public void notifyConsumer(String message) {
+    public void activateConsumer() {
+        Measurement measurement = measurementQueue.dequeueMeasurement();
         for (IConsumer consumer : consumers) {
-            consumer.notification(message);
+            consumer.consume(measurement);
         }
     }
 
-    public void notifyProducer(String message) {
+    public void activateProducer() {
         for (IProducer producer : producers) {
-            producer.notification(message);
+            producer.produce(measurementQueue);
         }
     }
 }

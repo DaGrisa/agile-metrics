@@ -1,8 +1,8 @@
-package at.grisa.agilemetrics.producer.bitbucket.restentities;
+package at.grisa.agilemetrics.producer.bitbucketserver.restentities;
 
 public class PagedEntities<T> {
     private Boolean isLastPage;
-    private Long nextPageStart;
+    private Integer nextPageStart;
     private T[] values;
 
     public PagedEntities() {
@@ -16,11 +16,11 @@ public class PagedEntities<T> {
         isLastPage = lastPage;
     }
 
-    public Long getNextPageStart() {
+    public Integer getNextPageStart() {
         return nextPageStart;
     }
 
-    public void setNextPageStart(Long nextPageStart) {
+    public void setNextPageStart(Integer nextPageStart) {
         this.nextPageStart = nextPageStart;
     }
 
