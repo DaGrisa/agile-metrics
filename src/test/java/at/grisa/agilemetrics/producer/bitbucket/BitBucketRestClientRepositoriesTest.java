@@ -1,6 +1,6 @@
 package at.grisa.agilemetrics.producer.bitbucket;
 
-import at.grisa.agilemetrics.producer.bitbucket.restentities.Project;
+import at.grisa.agilemetrics.producer.bitbucket.restentities.Repository;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -17,20 +17,20 @@ import static org.mockserver.model.Header.header;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
-public class BitBucketRestClientProjectsTest {
+public class BitBucketRestClientRepositoriesTest {
     @Rule
     public MockServerRule mockServerRule = new MockServerRule(this);
     private MockServerClient mockServerClient;
-    private Project[] projects;
+    private Repository[] repositories;
 
     @Before
-    public void loadProjectsFromMockServer() throws IOException, URISyntaxException {
-        String responseBody = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("bitbucket/projects.js").toURI())));
+    public void loadReposFromMockServer() throws URISyntaxException, IOException {
+        String responseBody = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("bitbucket/repos.js").toURI())));
 
         mockServerClient.when(
                 request()
                         .withMethod("GET")
-                        .withPath("/rest/api/1.0/projects")
+                        .withPath("/rest/api/1.0/projects/PRJ/repos")
         )
                 .respond(
                         response()
@@ -39,20 +39,21 @@ public class BitBucketRestClientProjectsTest {
                                 .withBody(responseBody)
                 );
 
+        String projectKey = "PRJ";
         BitBucketRestClient client = new BitBucketRestClient("http://localhost:" + mockServerRule.getPort(), "user", "password");
-        projects = client.getProjects();
+        repositories = client.getRepos(projectKey);
     }
 
     @Test
     public void countRepos() {
-        assertEquals("1 project in total", 1, projects.length);
+        assertEquals("1 repo in total", 1, repositories.length);
     }
 
     @Test
     public void checkData() {
-        Project project = projects[0];
-        assertEquals("check project id", new Long(1), project.getId());
-        assertEquals("check project key", "PRJ", project.getKey());
-        assertEquals("check project name", "My Cool Project", project.getName());
+        Repository repository = repositories[0];
+        assertEquals("check repository id", new Long(1), repository.getId());
+        assertEquals("check repository slug", "my-repo", repository.getSlug());
+        assertEquals("check repository name", "My repo", repository.getName());
     }
 }

@@ -1,6 +1,6 @@
 package at.grisa.agilemetrics.producer.bitbucket;
 
-import at.grisa.agilemetrics.producer.bitbucket.restentities.Repo;
+import at.grisa.agilemetrics.producer.bitbucket.restentities.Commit;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -17,20 +17,20 @@ import static org.mockserver.model.Header.header;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
-public class BitBucketRestClientReposTest {
+public class BitBucketRestClientCommitsTest {
     @Rule
     public MockServerRule mockServerRule = new MockServerRule(this);
     private MockServerClient mockServerClient;
-    private Repo[] repos;
+    private Commit[] commits;
 
     @Before
-    public void loadReposFromMockServer() throws URISyntaxException, IOException {
-        String responseBody = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("bitbucket/repos.js").toURI())));
+    public void loadCommitsFromMockServer() throws URISyntaxException, IOException {
+        String responseBody = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("bitbucket/commits.js").toURI())));
 
         mockServerClient.when(
                 request()
                         .withMethod("GET")
-                        .withPath("/rest/api/1.0/projects/PRJ/repos")
+                        .withPath("/rest/api/1.0/projects/PRJ/repos/REPO/commits")
         )
                 .respond(
                         response()
@@ -40,20 +40,20 @@ public class BitBucketRestClientReposTest {
                 );
 
         String projectKey = "PRJ";
+        String repositorySlug = "REPO";
         BitBucketRestClient client = new BitBucketRestClient("http://localhost:" + mockServerRule.getPort(), "user", "password");
-        repos = client.getRepos(projectKey);
+        commits = client.getCommits(projectKey, repositorySlug);
     }
 
     @Test
-    public void countRepos() {
-        assertEquals("1 repo in total", repos.length, 1);
+    public void countCommits() {
+        assertEquals("1 commit in total", 1, commits.length);
     }
 
     @Test
     public void checkData() {
-        Repo repo = repos[0];
-        assertEquals("check repo id", repo.getId(), new Long(1));
-        assertEquals("check repo slug", repo.getSlug(), "my-repo");
-        assertEquals("check repo name", repo.getName(), "My repo");
+        Commit commit = commits[0];
+        assertEquals("check commit id", "def0123abcdef4567abcdef8987abcdef6543abc", commit.getId());
+        assertEquals("check commit message", "More work on feature 1", commit.getMessage());
     }
 }

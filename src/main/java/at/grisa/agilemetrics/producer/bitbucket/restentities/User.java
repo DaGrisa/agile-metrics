@@ -3,28 +3,11 @@ package at.grisa.agilemetrics.producer.bitbucket.restentities;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Repo {
-    private Long id;
-    private String slug;
+public class User {
     private String name;
+    private String emailAddress;
 
-    public Repo() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getSlug() {
-        return slug;
-    }
-
-    public void setSlug(String slug) {
-        this.slug = slug;
+    public User() {
     }
 
     public String getName() {
@@ -33,5 +16,13 @@ public class Repo {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getEmailAddress() {
+        return emailAddress;
+    }
+
+    public void setEmailAddress(String emailAddress) {
+        this.emailAddress = emailAddress;
     }
 }
