@@ -5,11 +5,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class CredentialManager {
-    @Value("${producer.bitbucketserver.baseUrl}")
+    @Value("${producer.bitbucketserver.baseUrl:}")
     private String bitbucketserverBaseUrl;
-    @Value("${producer.bitbucketserver.username}")
+    @Value("${producer.bitbucketserver.username:}")
     private String bitbucketserverUsername;
-    @Value("${producer.bitbucketserver.password}")
+    @Value("${producer.bitbucketserver.password:}")
     private String bitbucketserverPassword;
 
     public CredentialManager() {

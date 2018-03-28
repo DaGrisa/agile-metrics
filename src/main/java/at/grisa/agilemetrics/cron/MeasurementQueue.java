@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.Collection;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
@@ -34,6 +35,12 @@ public class MeasurementQueue {
             } catch (SecurityException e) {
                 log.error("unable to create directory " + directoryPath, e);
             }
+        }
+    }
+
+    public void enqueueMesurements(Collection<Measurement> measurements) {
+        for (Measurement measurement : measurements) {
+            enqueueMesurement(measurement);
         }
     }
 
@@ -103,5 +110,4 @@ public class MeasurementQueue {
             log.error("unable to delete file " + nextMeasurementFile.getName(), e);
         }
     }
-
 }

@@ -4,19 +4,22 @@ import at.grisa.agilemetrics.consumer.IConsumer;
 import at.grisa.agilemetrics.entity.Measurement;
 import at.grisa.agilemetrics.producer.IProducer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import java.util.LinkedList;
 
+@Component
 public class CronObserver {
     private LinkedList<IConsumer> consumers;
-    private LinkedList<IProducer> producers;
+    private LinkedList<IProducer> producersDaily;
 
     @Autowired
     MeasurementQueue measurementQueue;
 
     public CronObserver() {
         consumers = new LinkedList<>();
-        producers = new LinkedList<>();
+        producersDaily = new LinkedList<>();
     }
 
     public void registerConsumer(IConsumer consumer) {
@@ -25,21 +28,26 @@ public class CronObserver {
         }
     }
 
-    public void registerProducer(IProducer producer) {
-        if (!producers.contains(producer)) {
-            producers.add(producer);
+    public void registerProducerDaily(IProducer producer) {
+        if (!producersDaily.contains(producer)) {
+            producersDaily.add(producer);
         }
     }
 
+    @Scheduled(fixedDelay = 5000)
     public void activateConsumer() {
         Measurement measurement = measurementQueue.dequeueMeasurement();
-        for (IConsumer consumer : consumers) {
-            consumer.consume(measurement);
+        while (measurement != null) {
+            for (IConsumer consumer : consumers) {
+                consumer.consume(measurement);
+            }
+            measurement = measurementQueue.dequeueMeasurement();
         }
     }
 
-    public void activateProducer() {
-        for (IProducer producer : producers) {
+    @Scheduled(cron = "${cron.expression.daily}")
+    public void activateProducerDaily() {
+        for (IProducer producer : producersDaily) {
             producer.produce(measurementQueue);
         }
     }

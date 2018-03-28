@@ -51,9 +51,7 @@ public class BitBucketServerProducer implements IProducer {
             }
         }
 
-        for (Measurement measurement : measurements) {
-            measurementQueue.enqueueMesurement(measurement);
-        }
+        measurementQueue.enqueueMesurements(measurements);
     }
 
     private void collectDailyChangedLines(MeasurementQueue measurementQueue) {
