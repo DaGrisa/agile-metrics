@@ -7,14 +7,14 @@ import java.util.Date;
 import java.util.HashSet;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Measurement {
-    private String name;
-    private Double value;
-    private Date valueDate;
-    private Date created;
-    private String user;
-    private String project;
-    private HashSet<String> tags;
+final public class Measurement {
+    public final String name;
+    public final Double value;
+    public final Date valueDate;
+    public final Date created;
+    public final String user;
+    public final String project;
+    public final HashSet<String> tags;
 
     public Measurement(String name, String project, String user, Double value, Date valueDate, Date created, String... tags) {
         this.name = name;

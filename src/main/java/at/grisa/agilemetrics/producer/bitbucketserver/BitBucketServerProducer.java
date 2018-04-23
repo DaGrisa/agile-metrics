@@ -1,6 +1,7 @@
 package at.grisa.agilemetrics.producer.bitbucketserver;
 
 import at.grisa.agilemetrics.cron.MeasurementQueue;
+import at.grisa.agilemetrics.cron.TimeSpan;
 import at.grisa.agilemetrics.entity.Measurement;
 import at.grisa.agilemetrics.producer.IProducer;
 import at.grisa.agilemetrics.producer.bitbucketserver.restentities.Commit;
@@ -27,8 +28,10 @@ public class BitBucketServerProducer implements IProducer {
     }
 
     @Override
-    public void produce(MeasurementQueue measurementQueue) {
-        collectDailyCommits(measurementQueue);
+    public void produce(MeasurementQueue measurementQueue, TimeSpan timespan) {
+        if (timespan.equals(TimeSpan.DAILY)) {
+            collectDailyCommits(measurementQueue);
+        }
     }
 
     private void collectDailyCommits(MeasurementQueue measurementQueue) {

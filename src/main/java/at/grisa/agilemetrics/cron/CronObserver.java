@@ -12,14 +12,14 @@ import java.util.LinkedList;
 @Component
 public class CronObserver {
     private LinkedList<IConsumer> consumers;
-    private LinkedList<IProducer> producersDaily;
+    private LinkedList<IProducer> producers;
 
     @Autowired
     MeasurementQueue measurementQueue;
 
     public CronObserver() {
         consumers = new LinkedList<>();
-        producersDaily = new LinkedList<>();
+        producers = new LinkedList<>();
     }
 
     public void registerConsumer(IConsumer consumer) {
@@ -28,9 +28,9 @@ public class CronObserver {
         }
     }
 
-    public void registerProducerDaily(IProducer producer) {
-        if (!producersDaily.contains(producer)) {
-            producersDaily.add(producer);
+    public void registerProducer(IProducer producer) {
+        if (!producers.contains(producer)) {
+            producers.add(producer);
         }
     }
 
@@ -47,8 +47,8 @@ public class CronObserver {
 
     @Scheduled(cron = "${cron.expression.daily}")
     public void activateProducerDaily() {
-        for (IProducer producer : producersDaily) {
-            producer.produce(measurementQueue);
+        for (IProducer producer : producers) {
+            producer.produce(measurementQueue, TimeSpan.DAILY);
         }
     }
 }
