@@ -1,6 +1,6 @@
 package at.grisa.agilemetrics.producer.jirasoftwareserver;
 
-import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.Board;
+import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.greenhopper.SprintReport;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -11,27 +11,30 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockserver.model.Header.header;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
-public class JiraSoftwareServerRestClientScrumBoardsTest {
+public class JiraSoftwareServerRestClientSprintReportGreenhopperTest {
     @Rule
     public MockServerRule mockServerRule = new MockServerRule(this);
     private MockServerClient mockServerClient;
-    private Collection<Board> boards;
+    private SprintReport sprintReport;
 
     @Before
-    public void loadBoardsFromMockServer() throws URISyntaxException, IOException {
-        String responseBody = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("jirasoftware/boards.js").toURI())));
+    public void loadIssuesFromMockServer() throws URISyntaxException, IOException {
+        String responseBody = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("jirasoftware/sprintreportGreenhopper.js").toURI())));
 
+        Long sprintId = 1234L;
+        Long rapidviewId = 5678L;
         mockServerClient.when(
                 request()
                         .withMethod("GET")
-                        .withPath("/rest/agile/1.0/board")
+                        .withPath("/rest/greenhopper/1.0/rapid/charts/sprintreport")
+                        .withQueryStringParameter("rapidViewId", rapidviewId.toString())
+                        .withQueryStringParameter("sprintId", sprintId.toString())
         )
                 .respond(
                         response()
@@ -41,19 +44,12 @@ public class JiraSoftwareServerRestClientScrumBoardsTest {
                 );
 
         JiraSoftwareServerRestClient client = new JiraSoftwareServerRestClient("http://localhost:" + mockServerRule.getPort(), "user", "password");
-        boards = client.getScrumBoards();
-    }
-
-    @Test
-    public void countBoards() {
-        assertEquals("2 boards in total", 2, boards.size());
+        sprintReport = client.getSprintReportGreenhopper(rapidviewId, sprintId);
     }
 
     @Test
     public void checkData() {
-        Board board = boards.iterator().next();
-        assertEquals("check board id", new Long(84), board.getId());
-        assertEquals("check board name", "scrum board", board.getName());
-        assertEquals("check board type", "scrum", board.getType());
+        assertEquals("check sprintreport completed issues estimates sum", new Integer(31), sprintReport.getContents().getCompletedIssuesEstimateSum().getValue());
+        assertEquals("check sprintreport not completed issues estimates sum", new Integer(45), sprintReport.getContents().getIssuesNotCompletedEstimateSum().getValue());
     }
 }

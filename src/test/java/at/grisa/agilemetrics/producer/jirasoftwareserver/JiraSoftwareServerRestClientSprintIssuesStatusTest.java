@@ -1,6 +1,6 @@
 package at.grisa.agilemetrics.producer.jirasoftwareserver;
 
-import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.Board;
+import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.Issue;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -18,20 +18,23 @@ import static org.mockserver.model.Header.header;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
-public class JiraSoftwareServerRestClientScrumBoardsTest {
+public class JiraSoftwareServerRestClientSprintIssuesStatusTest {
     @Rule
     public MockServerRule mockServerRule = new MockServerRule(this);
     private MockServerClient mockServerClient;
-    private Collection<Board> boards;
+    private Collection<Issue> issues;
 
     @Before
-    public void loadBoardsFromMockServer() throws URISyntaxException, IOException {
-        String responseBody = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("jirasoftware/boards.js").toURI())));
+    public void loadIssuesStatusFromMockServer() throws URISyntaxException, IOException {
+        String responseBody = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("jirasoftware/issuesStatus.js").toURI())));
 
+        Long boardId = 1234L;
+        Long sprintId = 5678L;
         mockServerClient.when(
                 request()
                         .withMethod("GET")
-                        .withPath("/rest/agile/1.0/board")
+                        .withPath("/rest/agile/1.0/board/" + boardId + "/sprint/" + sprintId + "/issue")
+                        .withQueryStringParameter("fields", "status")
         )
                 .respond(
                         response()
@@ -41,19 +44,20 @@ public class JiraSoftwareServerRestClientScrumBoardsTest {
                 );
 
         JiraSoftwareServerRestClient client = new JiraSoftwareServerRestClient("http://localhost:" + mockServerRule.getPort(), "user", "password");
-        boards = client.getScrumBoards();
+        issues = client.getSprintIssuesStatus(boardId, sprintId);
     }
 
     @Test
-    public void countBoards() {
-        assertEquals("2 boards in total", 2, boards.size());
+    public void countIssues() {
+        assertEquals("10 issues in total", 10, issues.size());
     }
 
     @Test
     public void checkData() {
-        Board board = boards.iterator().next();
-        assertEquals("check board id", new Long(84), board.getId());
-        assertEquals("check board name", "scrum board", board.getName());
-        assertEquals("check board type", "scrum", board.getType());
+        Issue issue = issues.iterator().next();
+        assertEquals("check issue id", new Long(10001), issue.getId());
+        assertEquals("check issue key", "ISSUE-1", issue.getKey());
+        assertEquals("check issue status name", "Released", issue.getFields().getStatus().getName());
+        assertEquals("check issue status category name", "Done", issue.getFields().getStatus().getStatusCategory().getName());
     }
 }

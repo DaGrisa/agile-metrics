@@ -1,7 +1,7 @@
 package at.grisa.agilemetrics.cron;
 
 import at.grisa.agilemetrics.consumer.IConsumer;
-import at.grisa.agilemetrics.entity.Measurement;
+import at.grisa.agilemetrics.entity.Metric;
 import at.grisa.agilemetrics.producer.IProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -15,7 +15,7 @@ public class CronObserver {
     private LinkedList<IProducer> producers;
 
     @Autowired
-    MeasurementQueue measurementQueue;
+    MetricQueue metricQueue;
 
     public CronObserver() {
         consumers = new LinkedList<>();
@@ -36,19 +36,19 @@ public class CronObserver {
 
     @Scheduled(fixedDelay = 5000)
     public void activateConsumer() {
-        Measurement measurement = measurementQueue.dequeueMeasurement();
+        Metric measurement = metricQueue.dequeueMetric();
         while (measurement != null) {
             for (IConsumer consumer : consumers) {
                 consumer.consume(measurement);
             }
-            measurement = measurementQueue.dequeueMeasurement();
+            measurement = metricQueue.dequeueMetric();
         }
     }
 
     @Scheduled(cron = "${cron.expression.daily}")
     public void activateProducerDaily() {
         for (IProducer producer : producers) {
-            producer.produce(measurementQueue, TimeSpan.DAILY);
+            producer.produce(metricQueue, TimeSpan.DAILY);
         }
     }
 }

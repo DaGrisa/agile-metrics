@@ -21,6 +21,27 @@ public class RestClient {
         this.password = password;
     }
 
+    public <T> T getEntity(Class<T> clazz, String restPath, QueryParam... queryParams) {
+        String restUrl = this.hostUrl + restPath;
+
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getInterceptors().add(new BasicAuthorizationInterceptor(username, password));
+
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(restUrl);
+
+        for (QueryParam queryParam : queryParams) {
+            builder.queryParam(queryParam.name, queryParam.value);
+        }
+
+        T response = restTemplate.exchange(builder.build().encode().toUri(),
+                HttpMethod.GET,
+                null,
+                clazz
+        ).getBody();
+
+        return response;
+    }
+
     public <T> T getPagedEntities(ParameterizedTypeReference<T> responseType, String restPath,
                                   QueryParam... queryParams) {
         String restUrl = this.hostUrl + restPath;

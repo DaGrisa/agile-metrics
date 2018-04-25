@@ -1,6 +1,6 @@
 package at.grisa.agilemetrics.cron;
 
-import at.grisa.agilemetrics.entity.Measurement;
+import at.grisa.agilemetrics.entity.Metric;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,13 +15,13 @@ import java.util.Collection;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 @Component
-public class MeasurementQueue {
-    private final static Logger log = LogManager.getLogger(MeasurementQueue.class);
+public class MetricQueue {
+    private final static Logger log = LogManager.getLogger(MetricQueue.class);
 
     private final String QUEUE_DIR = "queuedFiles";
     private final String ERROR_DIR = QUEUE_DIR + "/error";
 
-    public MeasurementQueue() {
+    public MetricQueue() {
         createDirectory(QUEUE_DIR);
         createDirectory(ERROR_DIR);
     }
@@ -38,76 +38,76 @@ public class MeasurementQueue {
         }
     }
 
-    public void enqueueMesurements(Collection<Measurement> measurements) {
-        for (Measurement measurement : measurements) {
-            enqueueMesurement(measurement);
+    public void enqueueMetric(Collection<Metric> metrics) {
+        for (Metric metric : metrics) {
+            enqueueMetric(metric);
         }
     }
 
-    public void enqueueMesurement(Measurement measurement) {
+    public void enqueueMetric(Metric metric) {
         String filepath = QUEUE_DIR + "/" + System.currentTimeMillis() + "_" + Math.random() * 1000 + ".json";
         ObjectMapper mapper = new ObjectMapper();
 
         try {
-            mapper.writeValue(new File(filepath), measurement);
+            mapper.writeValue(new File(filepath), metric);
         } catch (IOException e) {
-            log.error("error when trying to save measurement to file " + filepath, e);
+            log.error("error when trying to save metric to file " + filepath, e);
         }
     }
 
-    public Measurement dequeueMeasurement() {
-        File nextMeasurementFile = getNextMeasurementFile();
+    public Metric dequeueMetric() {
+        File nextMetricFile = getNextMetricFile();
 
-        if (nextMeasurementFile != null) {
+        if (nextMetricFile != null) {
             ObjectMapper objectMapper = new ObjectMapper();
-            Measurement measurement = null;
+            Metric metric = null;
 
             try {
-                measurement = objectMapper.readValue(nextMeasurementFile, Measurement.class);
+                metric = objectMapper.readValue(nextMetricFile, Metric.class);
             } catch (IOException e) {
-                log.error("could not read json data from file " + nextMeasurementFile.getName(), e);
-                moveErrorMeasurementFile(nextMeasurementFile, e);
+                log.error("could not read json data from file " + nextMetricFile.getName(), e);
+                moveErrorMetricFile(nextMetricFile, e);
             }
 
-            deleteMeasurementFile(nextMeasurementFile);
+            deleteMetricFile(nextMetricFile);
 
-            return measurement;
+            return metric;
         }
 
         return null;
     }
 
-    private File getNextMeasurementFile() {
+    private File getNextMetricFile() {
         File directory = new File(QUEUE_DIR);
         File[] files = directory.listFiles();
         Arrays.sort(files);
 
-        File nextMeasurementFile = null;
+        File nextMetricFile = null;
 
         for (File file : files) {
             if (!file.isDirectory()) {
-                nextMeasurementFile = file;
+                nextMetricFile = file;
                 break;
             }
         }
 
-        return nextMeasurementFile;
+        return nextMetricFile;
     }
 
-    private void moveErrorMeasurementFile(File nextMeasurementFile, IOException e) {
-        File nextMeasurementFileError = new File(ERROR_DIR + nextMeasurementFile.getName());
+    private void moveErrorMetricFile(File nextMetricFile, IOException e) {
+        File nextMetricFileError = new File(ERROR_DIR + nextMetricFile.getName());
         try {
-            Files.move(nextMeasurementFile.toPath(), nextMeasurementFileError.toPath(), REPLACE_EXISTING);
+            Files.move(nextMetricFile.toPath(), nextMetricFileError.toPath(), REPLACE_EXISTING);
         } catch (IOException e1) {
             log.error("unable to move file to error folder", e);
         }
     }
 
-    private void deleteMeasurementFile(File nextMeasurementFile) {
+    private void deleteMetricFile(File nextMetricFile) {
         try {
-            Files.delete(nextMeasurementFile.toPath());
+            Files.delete(nextMetricFile.toPath());
         } catch (IOException e) {
-            log.error("unable to delete file " + nextMeasurementFile.getName(), e);
+            log.error("unable to delete file " + nextMetricFile.getName(), e);
         }
     }
 }

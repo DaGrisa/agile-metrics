@@ -1,7 +1,7 @@
 package at.grisa.agilemetrics.consumer;
 
-import at.grisa.agilemetrics.entity.Measurement;
+import at.grisa.agilemetrics.entity.Metric;
 
 public interface IConsumer {
-    void consume(Measurement measurement);
+    void consume(Metric measurement);
 }
