@@ -58,6 +58,14 @@ public class JiraSoftwareServerRestClient {
         return boardFilter.getJql();
     }
 
+    public Issue getIssue(Long issueId, QueryParam... queryParams) {
+        String issuePath = "/rest/api/2/issue/{issueId}";
+        String issueRequestPath = issuePath.replace("{issueId}", issueId.toString());
+        Issue issue = restClient.getEntity(Issue.class, issueRequestPath, queryParams);
+
+        return issue;
+    }
+
     public Collection<Issue> getIssuesByJQL(String jql) {
         String searchPath = "/rest/api/2/search";
         QueryParam jqlQueryParam = new QueryParam("jql", jql);
@@ -67,9 +75,9 @@ public class JiraSoftwareServerRestClient {
         Boolean issuesToLoad = true;
 
         while (issuesToLoad) {
-            QueryParam startElement = new QueryParam("start", startElementIndex);
+            QueryParam startElementIndexQueryParam = new QueryParam("start", startElementIndex);
             PagedEntities<Issue> pagedIssues = restClient.getPagedEntities(new ParameterizedTypeReference<PagedEntities<Issue>>() {
-            }, searchPath, startElement, jqlQueryParam);
+            }, searchPath, jqlQueryParam, startElementIndexQueryParam);
 
             issues.addAll(Arrays.asList(pagedIssues.getIssues()));
 

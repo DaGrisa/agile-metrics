@@ -7,6 +7,7 @@ public class Issue {
     private Long id;
     private String key;
     private Fields fields;
+    private ChangeLog changelog;
 
     public Issue() {
     }
@@ -33,5 +34,13 @@ public class Issue {
 
     public void setFields(Fields fields) {
         this.fields = fields;
+    }
+
+    public ChangeLog getChangelog() {
+        return changelog;
+    }
+
+    public void setChangelog(ChangeLog changelog) {
+        this.changelog = changelog;
     }
 }
