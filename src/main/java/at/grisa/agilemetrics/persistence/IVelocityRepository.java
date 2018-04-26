@@ -6,5 +6,5 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.List;
 
 public interface IVelocityRepository extends CrudRepository<Velocity, Long> {
-    List<Velocity> findByTeamAndSprint(String team, String Spring);
+    List<Velocity> findByTeam(String team);
 }

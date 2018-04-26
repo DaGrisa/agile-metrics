@@ -1,5 +1,6 @@
 package at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.greenhopper;
 
+import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.Value;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)

@@ -194,4 +194,14 @@ public class JiraSoftwareServerRestClient {
 
         return sprintReport;
     }
+
+    public VelocityReport getVelocityReportGreenhopper(Long rapidviewId) {
+        String velocityReportPath = "/rest/greenhopper/1.0/rapid/charts/velocity";
+
+        QueryParam rapidViewIdQueryParam = new QueryParam("rapidViewId", rapidviewId);
+
+        VelocityReport velocityReport = restClient.getEntity(VelocityReport.class, velocityReportPath, rapidViewIdQueryParam);
+
+        return velocityReport;
+    }
 }

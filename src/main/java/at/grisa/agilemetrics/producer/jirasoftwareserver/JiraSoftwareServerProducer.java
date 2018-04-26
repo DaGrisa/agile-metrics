@@ -4,6 +4,7 @@ import at.grisa.agilemetrics.cron.MetricQueue;
 import at.grisa.agilemetrics.cron.TimeSpan;
 import at.grisa.agilemetrics.entity.Metric;
 import at.grisa.agilemetrics.persistence.IVelocityRepository;
+import at.grisa.agilemetrics.persistence.entity.Velocity;
 import at.grisa.agilemetrics.producer.IProducer;
 import at.grisa.agilemetrics.producer.atlassian.rest.entities.QueryParam;
 import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.*;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class JiraSoftwareServerProducer implements IProducer {
 
@@ -39,6 +41,7 @@ public class JiraSoftwareServerProducer implements IProducer {
         produceBugRate(metricQueue, jiraRestClient);
         produceRecidivism(metricQueue, jiraRestClient);
         produceAcceptanceCriteriaVolatility(metricQueue, jiraRestClient);
+        produceVelocity(metricQueue, jiraRestClient);
     }
 
     private void produceIssueVolume(MetricQueue metricQueue, JiraSoftwareServerRestClient jiraRestClient) {
@@ -226,9 +229,41 @@ public class JiraSoftwareServerProducer implements IProducer {
 
     private void produceVelocity(MetricQueue metricQueue, JiraSoftwareServerRestClient jiraRestClient) {
         for (RapidView rapidView : jiraRestClient.getRapidViewsGreenhopper()) {
-            /*VelocityReport velocityReport = jiraRestClient.getVelocityReportGreenhopper(rapidView.getId());
+            VelocityReport velocityReport = jiraRestClient.getVelocityReportGreenhopper(rapidView.getId());
 
-            velocityRepository.findByTeamAndSprint(rapidView.getName(), velocityReport.getSprint());*/
+            List<Velocity> velocities = velocityRepository.findByTeam(rapidView.getName());
+            List<String> savedSprintNames = velocities.stream().map(Velocity::getSprint).collect(Collectors.toList());
+
+            List<VelocityStats> velocityStats = new LinkedList<>();
+            Map<Long, Sprint> sprints = new HashMap<>();
+
+            for (Sprint sprint : velocityReport.getSprints()) {
+                if (sprint.getState().toLowerCase().equals("closed")) {
+                    if (!savedSprintNames.contains(sprint.getName())) {
+                        VelocityStats velocityStat = velocityReport.getVelocityStatEntries().get(sprint.getId().toString());
+                        velocityStat.setSprintId(sprint.getId());
+
+                        velocityStats.add(velocityStat);
+                        sprints.put(sprint.getId(), sprint);
+                    }
+                }
+            }
+
+            for (VelocityStats velocityStat : velocityStats) {
+                String sprintName = sprints.get(velocityStat.getSprintId()).getName();
+                String sprintGoal = sprints.get(velocityStat.getSprintId()).getGoal();
+
+                HashMap<String, String> meta = new HashMap<>();
+                meta.put("rapidview", rapidView.getName());
+                meta.put("sprint", sprintName);
+                meta.put("sprint-goal", sprintGoal);
+
+                metricQueue.enqueueMetric(new Metric(velocityStat.getEstimated().getValue().doubleValue(), "Velocity - Estimated", meta));
+                metricQueue.enqueueMetric(new Metric(velocityStat.getCompleted().getValue().doubleValue(), "Velocity - Completed", meta));
+
+                Velocity velocity = new Velocity(rapidView.getName(), sprintName, sprintGoal, velocityStat.getEstimated().getValue(), velocityStat.getCompleted().getValue());
+                velocityRepository.save(velocity);
+            }
         }
 
     }

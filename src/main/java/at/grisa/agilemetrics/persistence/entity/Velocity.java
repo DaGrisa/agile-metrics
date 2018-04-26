@@ -13,16 +13,18 @@ public class Velocity {
     private String team;
     private String sprint;
     private String goal;
-    private Integer value;
+    private Integer estimated;
+    private Integer completed;
 
     public Velocity() {
     }
 
-    public Velocity(String team, String sprint, String goal, Integer value) {
+    public Velocity(String team, String sprint, String goal, Integer estimated, Integer completed) {
         this.team = team;
         this.sprint = sprint;
         this.goal = goal;
-        this.value = value;
+        this.estimated = estimated;
+        this.completed = completed;
     }
 
     public Long getId() {
@@ -57,11 +59,19 @@ public class Velocity {
         this.goal = goal;
     }
 
-    public Integer getValue() {
-        return value;
+    public Integer getEstimated() {
+        return estimated;
     }
 
-    public void setValue(Integer value) {
-        this.value = value;
+    public void setEstimated(Integer estimated) {
+        this.estimated = estimated;
+    }
+
+    public Integer getCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(Integer completed) {
+        this.completed = completed;
     }
 }
