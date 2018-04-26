@@ -12,6 +12,7 @@ public class Fields {
     private Instant created;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX")
     private Instant resolutiondate;
+    private String[] labels;
 
     public Fields() {
     }
@@ -38,5 +39,13 @@ public class Fields {
 
     public void setResolutiondate(Instant resolutiondate) {
         this.resolutiondate = resolutiondate;
+    }
+
+    public String[] getLabels() {
+        return labels;
+    }
+
+    public void setLabels(String[] labels) {
+        this.labels = labels;
     }
 }

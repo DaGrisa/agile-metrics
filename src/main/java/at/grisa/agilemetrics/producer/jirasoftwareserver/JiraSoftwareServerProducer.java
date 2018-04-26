@@ -42,6 +42,7 @@ public class JiraSoftwareServerProducer implements IProducer {
         produceRecidivism(metricQueue, jiraRestClient);
         produceAcceptanceCriteriaVolatility(metricQueue, jiraRestClient);
         produceVelocity(metricQueue, jiraRestClient);
+        produceIssueLabels(metricQueue, jiraRestClient);
     }
 
     private void produceIssueVolume(MetricQueue metricQueue, JiraSoftwareServerRestClient jiraRestClient) {
@@ -266,5 +267,25 @@ public class JiraSoftwareServerProducer implements IProducer {
             }
         }
 
+    }
+
+    private void produceIssueLabels(MetricQueue metricQueue, JiraSoftwareServerRestClient jiraRestClient) {
+        for (Board scrumBoard : jiraRestClient.getScrumBoards()) {
+            String jql = jiraRestClient.getScrumBoardJQLFilter(scrumBoard.getId());
+            jql = "resolutiondate > -1d AND " + jql; // only show resolved issues from last day
+            Collection<Issue> issues = jiraRestClient.getIssuesByJQL(jql);
+
+            for (Issue issue : issues) {
+                if (issue.getFields().getLabels() != null && issue.getFields().getLabels().length > 0) {
+                    HashMap<String, String> meta = new HashMap<>();
+                    meta.put("scrum-board", scrumBoard.getName());
+                    meta.put("issue", issue.getKey());
+
+                    Double tagCount = new Double(issue.getFields().getLabels().length);
+                    Set<String> tags = new HashSet<String>(Arrays.asList(issue.getFields().getLabels()));
+                    metricQueue.enqueueMetric(new Metric(tagCount, "Issue Labels", meta, tags));
+                }
+            }
+        }
     }
 }
