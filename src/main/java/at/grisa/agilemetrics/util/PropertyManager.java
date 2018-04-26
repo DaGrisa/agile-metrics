@@ -13,6 +13,9 @@ public class PropertyManager {
     @Value("${producer.jirasoftware.acceptanceCriteriaFieldName}")
     private String jirasoftwareAcceptanceCriteriaFieldName;
 
+    @Value("${producer.sonarqube.metrics}")
+    private String sonarqubeMetrics;
+
     public PropertyManager() {
     }
 
@@ -34,5 +37,13 @@ public class PropertyManager {
 
     public void setJirasoftwareAcceptanceCriteriaFieldName(String jirasoftwareAcceptanceCriteriaFieldName) {
         this.jirasoftwareAcceptanceCriteriaFieldName = jirasoftwareAcceptanceCriteriaFieldName;
+    }
+
+    public String getSonarqubeMetrics() {
+        return sonarqubeMetrics;
+    }
+
+    public void setSonarqubeMetrics(String sonarqubeMetrics) {
+        this.sonarqubeMetrics = sonarqubeMetrics;
     }
 }
