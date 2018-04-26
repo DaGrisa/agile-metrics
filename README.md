@@ -1,7 +1,6 @@
 # Agile Metrics
 
 [![Build Status](https://travis-ci.org/DaGrisa/agile-metrics.svg?branch=master)](https://travis-ci.org/DaGrisa/agile-metrics)
-
 [![Lines#](https://sonarcloud.io/api/badges/measure?key=at.grisa.agile-metrics%3Aagile-metrics&metric=lines#.svg)](https://sonarcloud.io/dashboard/index/at.grisa.agile-metrics%3Aagile-metrics)
 [![Bugs#](https://sonarcloud.io/api/badges/measure?key=at.grisa.agile-metrics%3Aagile-metrics&metric=bugs#.svg)](https://sonarcloud.io/dashboard/index/at.grisa.agile-metrics%3Aagile-metrics)
 [![NewBugs#](https://sonarcloud.io/api/badges/measure?key=at.grisa.agile-metrics%3Aagile-metrics&metric=new_bugs#.svg)](https://sonarcloud.io/dashboard/index/at.grisa.agile-metrics%3Aagile-metrics)
