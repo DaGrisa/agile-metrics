@@ -1,6 +1,7 @@
-package at.grisa.agilemetrics.producer.jirasoftwareserver;
+package at.grisa.agilemetrics.producer.jirasoftwareserver.restclient;
 
-import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.Board;
+import at.grisa.agilemetrics.producer.jirasoftwareserver.JiraSoftwareServerRestClient;
+import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.greenhopper.RapidView;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -18,20 +19,20 @@ import static org.mockserver.model.Header.header;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
-public class JiraSoftwareServerRestClientScrumBoardsTest {
+public class JiraSoftwareServerRestClientRapidViewsGreenhopperTest {
     @Rule
     public MockServerRule mockServerRule = new MockServerRule(this);
     private MockServerClient mockServerClient;
-    private Collection<Board> boards;
+    private Collection<RapidView> rapidViews;
 
     @Before
-    public void loadBoardsFromMockServer() throws URISyntaxException, IOException {
-        String responseBody = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("jirasoftware/boards.js").toURI())));
+    public void loadIssuesFromMockServer() throws URISyntaxException, IOException {
+        String responseBody = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("jirasoftware/rapidviewsGreenhopper.js").toURI())));
 
         mockServerClient.when(
                 request()
                         .withMethod("GET")
-                        .withPath("/rest/agile/1.0/board")
+                        .withPath("/rest/greenhopper/1.0/rapidview")
         )
                 .respond(
                         response()
@@ -41,19 +42,19 @@ public class JiraSoftwareServerRestClientScrumBoardsTest {
                 );
 
         JiraSoftwareServerRestClient client = new JiraSoftwareServerRestClient("http://localhost:" + mockServerRule.getPort(), "user", "password");
-        boards = client.getScrumBoards();
+        rapidViews = client.getRapidViewsGreenhopper();
     }
 
     @Test
-    public void countBoards() {
-        assertEquals("2 boards in total", 2, boards.size());
+    public void countIssues() {
+        assertEquals("3 rapidviews in total", 3, rapidViews.size());
     }
 
     @Test
     public void checkData() {
-        Board board = boards.iterator().next();
-        assertEquals("check board id", new Long(84), board.getId());
-        assertEquals("check board name", "scrum board", board.getName());
-        assertEquals("check board type", "scrum", board.getType());
+        RapidView rapidView = rapidViews.iterator().next();
+        assertEquals("check rapidview id", new Long(2), rapidView.getId());
+        assertEquals("check rapidview name", "RapidView 2", rapidView.getName());
+        assertEquals("check rapidview sprint support", true, rapidView.getSprintSupportEnabled());
     }
 }

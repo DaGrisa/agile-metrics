@@ -1,6 +1,7 @@
-package at.grisa.agilemetrics.producer.jirasoftwareserver;
+package at.grisa.agilemetrics.producer.jirasoftwareserver.restclient;
 
-import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.greenhopper.RapidView;
+import at.grisa.agilemetrics.producer.jirasoftwareserver.JiraSoftwareServerRestClient;
+import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.Sprint;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -11,27 +12,27 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockserver.model.Header.header;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
-public class JiraSoftwareServerRestClientRapidViewsGreenhopperTest {
+public class JiraSoftwareServerRestClientActiveSprintTest {
     @Rule
     public MockServerRule mockServerRule = new MockServerRule(this);
     private MockServerClient mockServerClient;
-    private Collection<RapidView> rapidViews;
+    private Sprint sprint;
 
     @Before
-    public void loadIssuesFromMockServer() throws URISyntaxException, IOException {
-        String responseBody = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("jirasoftware/rapidviewsGreenhopper.js").toURI())));
+    public void loadSprintFromMockServer() throws URISyntaxException, IOException {
+        String responseBody = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("jirasoftware/sprints.js").toURI())));
 
+        Long boardId = 1234L;
         mockServerClient.when(
                 request()
                         .withMethod("GET")
-                        .withPath("/rest/greenhopper/1.0/rapidview")
+                        .withPath("/rest/agile/1.0/board/" + boardId + "/sprint")
         )
                 .respond(
                         response()
@@ -41,19 +42,13 @@ public class JiraSoftwareServerRestClientRapidViewsGreenhopperTest {
                 );
 
         JiraSoftwareServerRestClient client = new JiraSoftwareServerRestClient("http://localhost:" + mockServerRule.getPort(), "user", "password");
-        rapidViews = client.getRapidViewsGreenhopper();
-    }
-
-    @Test
-    public void countIssues() {
-        assertEquals("3 rapidviews in total", 3, rapidViews.size());
+        sprint = client.getActiveSprint(boardId);
     }
 
     @Test
     public void checkData() {
-        RapidView rapidView = rapidViews.iterator().next();
-        assertEquals("check rapidview id", new Long(2), rapidView.getId());
-        assertEquals("check rapidview name", "RapidView 2", rapidView.getName());
-        assertEquals("check rapidview sprint support", true, rapidView.getSprintSupportEnabled());
+        assertEquals("check sprint id", new Long(58), sprint.getId());
+        assertEquals("check sprint name", "sprint 2", sprint.getName());
+        assertEquals("check sprint type", "active", sprint.getState());
     }
 }

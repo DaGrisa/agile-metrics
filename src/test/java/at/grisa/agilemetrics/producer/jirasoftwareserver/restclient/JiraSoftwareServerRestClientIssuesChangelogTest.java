@@ -1,6 +1,7 @@
-package at.grisa.agilemetrics.producer.jirasoftwareserver;
+package at.grisa.agilemetrics.producer.jirasoftwareserver.restclient;
 
 import at.grisa.agilemetrics.producer.atlassian.rest.entities.QueryParam;
+import at.grisa.agilemetrics.producer.jirasoftwareserver.JiraSoftwareServerRestClient;
 import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.History;
 import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.HistoryItem;
 import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.Issue;

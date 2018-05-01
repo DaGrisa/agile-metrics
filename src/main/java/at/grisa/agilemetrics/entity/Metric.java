@@ -2,6 +2,7 @@ package at.grisa.agilemetrics.entity;
 
 import java.time.LocalDate;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public final class Metric {
@@ -25,5 +26,33 @@ public final class Metric {
         this.meta = meta;
         this.tags = tags;
         this.date = LocalDate.now();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Metric metric = (Metric) o;
+        return Objects.equals(value, metric.value) &&
+                Objects.equals(name, metric.name) &&
+                Objects.equals(meta, metric.meta) &&
+                Objects.equals(date, metric.date) &&
+                Objects.equals(tags, metric.tags);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(value, name, meta, date, tags);
+    }
+
+    @Override
+    public String toString() {
+        return "Metric{" +
+                "value=" + value +
+                ", name='" + name + '\'' +
+                ", meta=" + meta +
+                ", date=" + date +
+                ", tags=" + tags +
+                '}';
     }
 }

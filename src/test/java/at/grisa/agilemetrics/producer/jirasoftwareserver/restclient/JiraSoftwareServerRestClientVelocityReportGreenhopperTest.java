@@ -1,5 +1,6 @@
-package at.grisa.agilemetrics.producer.jirasoftwareserver;
+package at.grisa.agilemetrics.producer.jirasoftwareserver.restclient;
 
+import at.grisa.agilemetrics.producer.jirasoftwareserver.JiraSoftwareServerRestClient;
 import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.Sprint;
 import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.VelocityReport;
 import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.VelocityStats;

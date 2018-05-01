@@ -1,6 +1,6 @@
-package at.grisa.agilemetrics.producer.jirasoftwareserver;
+package at.grisa.agilemetrics.producer.jirasoftwareserver.restclient;
 
-import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.Sprint;
+import at.grisa.agilemetrics.producer.jirasoftwareserver.JiraSoftwareServerRestClient;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -17,21 +17,22 @@ import static org.mockserver.model.Header.header;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
-public class JiraSoftwareServerRestClientActiveSprintTest {
+public class JiraSoftwareServerRestClientSprintIssueCountTest {
     @Rule
     public MockServerRule mockServerRule = new MockServerRule(this);
     private MockServerClient mockServerClient;
-    private Sprint sprint;
+    private Integer issueCount;
 
     @Before
-    public void loadSprintFromMockServer() throws URISyntaxException, IOException {
-        String responseBody = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("jirasoftware/sprints.js").toURI())));
+    public void loadIssueCountFromMockServer() throws URISyntaxException, IOException {
+        String responseBody = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("jirasoftware/issues.js").toURI())));
 
         Long boardId = 1234L;
+        Long sprintId = 5678L;
         mockServerClient.when(
                 request()
                         .withMethod("GET")
-                        .withPath("/rest/agile/1.0/board/" + boardId + "/sprint")
+                        .withPath("/rest/agile/1.0/board/" + boardId + "/sprint/" + sprintId + "/issue")
         )
                 .respond(
                         response()
@@ -41,13 +42,11 @@ public class JiraSoftwareServerRestClientActiveSprintTest {
                 );
 
         JiraSoftwareServerRestClient client = new JiraSoftwareServerRestClient("http://localhost:" + mockServerRule.getPort(), "user", "password");
-        sprint = client.getActiveSprint(boardId);
+        issueCount = client.getSprintIssuesCount(boardId, sprintId);
     }
 
     @Test
     public void checkData() {
-        assertEquals("check sprint id", new Long(58), sprint.getId());
-        assertEquals("check sprint name", "sprint 2", sprint.getName());
-        assertEquals("check sprint type", "active", sprint.getState());
+        assertEquals("check sprint issue count", new Integer(2), issueCount);
     }
 }

@@ -1,5 +1,7 @@
-package at.grisa.agilemetrics.producer.jirasoftwareserver;
+package at.grisa.agilemetrics.producer.jirasoftwareserver.restclient;
 
+import at.grisa.agilemetrics.producer.jirasoftwareserver.JiraSoftwareServerRestClient;
+import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.Board;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -10,28 +12,27 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockserver.model.Header.header;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
-public class JiraSoftwareServerRestClientSprintIssueCountTest {
+public class JiraSoftwareServerRestClientScrumBoardsTest {
     @Rule
     public MockServerRule mockServerRule = new MockServerRule(this);
     private MockServerClient mockServerClient;
-    private Integer issueCount;
+    private Collection<Board> boards;
 
     @Before
-    public void loadIssueCountFromMockServer() throws URISyntaxException, IOException {
-        String responseBody = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("jirasoftware/issues.js").toURI())));
+    public void loadBoardsFromMockServer() throws URISyntaxException, IOException {
+        String responseBody = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("jirasoftware/boards.js").toURI())));
 
-        Long boardId = 1234L;
-        Long sprintId = 5678L;
         mockServerClient.when(
                 request()
                         .withMethod("GET")
-                        .withPath("/rest/agile/1.0/board/" + boardId + "/sprint/" + sprintId + "/issue")
+                        .withPath("/rest/agile/1.0/board")
         )
                 .respond(
                         response()
@@ -41,11 +42,19 @@ public class JiraSoftwareServerRestClientSprintIssueCountTest {
                 );
 
         JiraSoftwareServerRestClient client = new JiraSoftwareServerRestClient("http://localhost:" + mockServerRule.getPort(), "user", "password");
-        issueCount = client.getSprintIssuesCount(boardId, sprintId);
+        boards = client.getScrumBoards();
+    }
+
+    @Test
+    public void countBoards() {
+        assertEquals("2 boards in total", 2, boards.size());
     }
 
     @Test
     public void checkData() {
-        assertEquals("check sprint issue count", new Integer(2), issueCount);
+        Board board = boards.iterator().next();
+        assertEquals("check board id", new Long(84), board.getId());
+        assertEquals("check board name", "scrum board", board.getName());
+        assertEquals("check board type", "scrum", board.getType());
     }
 }
