@@ -1,11 +1,6 @@
 language: java
 jdk:
  - oraclejdk8
-env:
-  - TESTFOLDER=units/bitbucketserver
-  - TESTFOLDER=units/jirasoftwareserver/producer
-  - TESTFOLDER=units/jirasoftwareserver/restclient
-  - TESTFOLDER=integration
 addons:
   sonarcloud:
     organization: "agile-metrics" # the key of the org you chose at step #3
@@ -14,5 +9,3 @@ addons:
 script:
   # the following command line builds the project, runs the tests with coverage and then execute the SonarCloud analysis
   - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar
-  # run tests seperately in parallel
-  - bundle exec rspec $TESTFOLDER
