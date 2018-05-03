@@ -13,7 +13,7 @@ import java.util.HashMap;
 
 import static org.mockito.Mockito.*;
 
-public class JiraSoftwareServerProducerCumulativeFlow {
+public class JiraSoftwareServerProducerCumulativeFlowTest {
     private JiraSoftwareServerRestClient jiraSoftwareServerRestClient;
     private MetricQueue metricQueue;
     private Board board;

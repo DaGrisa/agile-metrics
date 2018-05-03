@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.Collection;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
@@ -35,12 +34,6 @@ public class MetricQueue {
             } catch (SecurityException e) {
                 log.error("unable to create directory " + directoryPath, e);
             }
-        }
-    }
-
-    public void enqueueMetric(Collection<Metric> metrics) {
-        for (Metric metric : metrics) {
-            enqueueMetric(metric);
         }
     }
 

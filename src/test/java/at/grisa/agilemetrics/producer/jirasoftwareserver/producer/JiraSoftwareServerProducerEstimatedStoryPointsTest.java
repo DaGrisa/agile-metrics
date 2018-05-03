@@ -17,7 +17,7 @@ import java.util.HashMap;
 
 import static org.mockito.Mockito.*;
 
-public class JiraSoftwareServerProducerEstimatedStoryPoints {
+public class JiraSoftwareServerProducerEstimatedStoryPointsTest {
     private JiraSoftwareServerRestClient jiraSoftwareServerRestClient;
     private MetricQueue metricQueue;
     private RapidView rapidView;

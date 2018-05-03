@@ -14,7 +14,7 @@ import java.util.HashMap;
 
 import static org.mockito.Mockito.*;
 
-public class JiraSoftwareServerProducerIssueVolume {
+public class JiraSoftwareServerProducerIssueVolumeTest {
     private JiraSoftwareServerRestClient jiraSoftwareServerRestClient;
     private MetricQueue metricQueue;
     private Board board;
