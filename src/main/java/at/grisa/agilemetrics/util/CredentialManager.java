@@ -32,27 +32,12 @@ public class CredentialManager {
     public String getBitbucketserverBaseUrl() {
         return bitbucketserverBaseUrl;
     }
-
-    public void setBitbucketserverBaseUrl(String bitbucketserverBaseUrl) {
-        this.bitbucketserverBaseUrl = bitbucketserverBaseUrl;
-    }
-
     public String getBitbucketserverUsername() {
         return bitbucketserverUsername;
     }
-
-    public void setBitbucketserverUsername(String bitbucketserverUsername) {
-        this.bitbucketserverUsername = bitbucketserverUsername;
-    }
-
     public String getBitbucketserverPassword() {
         return bitbucketserverPassword;
     }
-
-    public void setBitbucketserverPassword(String bitbucketserverPassword) {
-        this.bitbucketserverPassword = bitbucketserverPassword;
-    }
-
     public boolean isBitbucketserverActive() {
         return !this.bitbucketserverBaseUrl.isEmpty() && !this.bitbucketserverUsername.isEmpty() && !this.bitbucketserverPassword.isEmpty();
     }
@@ -60,48 +45,28 @@ public class CredentialManager {
     public String getJirasoftwareBaseUrl() {
         return jirasoftwareBaseUrl;
     }
-
-    public void setJirasoftwareBaseUrl(String jirasoftwareBaseUrl) {
-        this.jirasoftwareBaseUrl = jirasoftwareBaseUrl;
-    }
-
     public String getJirasoftwareUsername() {
         return jirasoftwareUsername;
     }
-
-    public void setJirasoftwareUsername(String jirasoftwareUsername) {
-        this.jirasoftwareUsername = jirasoftwareUsername;
-    }
-
     public String getJirasoftwarePassword() {
         return jirasoftwarePassword;
     }
 
-    public void setJirasoftwarePassword(String jirasoftwarePassword) {
-        this.jirasoftwarePassword = jirasoftwarePassword;
+    public boolean isJirasoftwareActive() {
+        return !this.jirasoftwareBaseUrl.isEmpty() && !this.jirasoftwareUsername.isEmpty() && !this.jirasoftwarePassword.isEmpty();
     }
 
     public String getSonarqubeBaseUrl() {
         return sonarqubeBaseUrl;
     }
-
-    public void setSonarqubeBaseUrl(String sonarqubeBaseUrl) {
-        this.sonarqubeBaseUrl = sonarqubeBaseUrl;
-    }
-
     public String getSonarqubeUsername() {
         return sonarqubeUsername;
     }
-
-    public void setSonarqubeUsername(String sonarqubeUsername) {
-        this.sonarqubeUsername = sonarqubeUsername;
-    }
-
     public String getSonarqubePassword() {
         return sonarqubePassword;
     }
 
-    public void setSonarqubePassword(String sonarqubePassword) {
-        this.sonarqubePassword = sonarqubePassword;
+    public boolean isSonarqubeActive() {
+        return !this.sonarqubeBaseUrl.isEmpty() && !this.sonarqubeUsername.isEmpty() && !this.sonarqubePassword.isEmpty();
     }
 }

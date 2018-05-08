@@ -1,7 +1,7 @@
 package at.grisa.agilemetrics.producer.jirasoftwareserver.restclient;
 
 import at.grisa.agilemetrics.producer.jirasoftwareserver.JiraSoftwareServerRestClient;
-import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.Issue;
+import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.Issue;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -13,6 +13,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 
@@ -86,7 +87,7 @@ public class JiraSoftwareServerRestClientJQLIssuesTest {
     public void checkData() {
         Issue issue = issues.iterator().next();
         assertEquals("check issue id", new Long(1), issue.getId());
-        assertEquals("check issue created date", OffsetDateTime.parse("2017-11-06T11:00:46.000+0100", DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX")).toInstant(), issue.getFields().getCreated());
-        assertEquals("check issue resolution date", OffsetDateTime.parse("2018-04-24T09:46:16.000+0200", DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX")).toInstant(), issue.getFields().getResolutiondate());
+        assertEquals("check issue created date", OffsetDateTime.parse("2017-11-06T11:00:46.000+0100", DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX")).toInstant().atZone(ZoneId.of("UTC")), issue.getFields().getCreated());
+        assertEquals("check issue resolution date", OffsetDateTime.parse("2018-04-24T09:46:16.000+0200", DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX")).toInstant().atZone(ZoneId.of("UTC")), issue.getFields().getResolutiondate());
     }
 }

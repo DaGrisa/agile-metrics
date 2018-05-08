@@ -4,11 +4,11 @@ import at.grisa.agilemetrics.cron.MetricQueue;
 import at.grisa.agilemetrics.entity.Metric;
 import at.grisa.agilemetrics.producer.jirasoftwareserver.JiraSoftwareServerProducer;
 import at.grisa.agilemetrics.producer.jirasoftwareserver.JiraSoftwareServerRestClient;
-import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.Value;
-import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.greenhopper.Contents;
-import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.greenhopper.RapidView;
-import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.greenhopper.Sprint;
-import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.greenhopper.SprintReport;
+import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.Value;
+import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.greenhopper.Contents;
+import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.greenhopper.RapidView;
+import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.greenhopper.Sprint;
+import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.greenhopper.SprintReport;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -36,12 +36,12 @@ public class CronObserver {
 
     @Scheduled(fixedDelay = 5000)
     public void activateConsumer() {
-        Metric measurement = metricQueue.dequeueMetric();
-        while (measurement != null) {
+        Metric metric = metricQueue.dequeueMetric();
+        while (metric != null) {
             for (IConsumer consumer : consumers) {
-                consumer.consume(measurement);
+                consumer.consume(metric);
             }
-            measurement = metricQueue.dequeueMetric();
+            metric = metricQueue.dequeueMetric();
         }
     }
 

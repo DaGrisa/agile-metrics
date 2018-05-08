@@ -4,9 +4,9 @@ import at.grisa.agilemetrics.cron.MetricQueue;
 import at.grisa.agilemetrics.cron.TimeSpan;
 import at.grisa.agilemetrics.entity.Metric;
 import at.grisa.agilemetrics.producer.IProducer;
-import at.grisa.agilemetrics.producer.bitbucketserver.restentities.Commit;
-import at.grisa.agilemetrics.producer.bitbucketserver.restentities.Project;
-import at.grisa.agilemetrics.producer.bitbucketserver.restentities.Repository;
+import at.grisa.agilemetrics.producer.bitbucketserver.restentity.Commit;
+import at.grisa.agilemetrics.producer.bitbucketserver.restentity.Project;
+import at.grisa.agilemetrics.producer.bitbucketserver.restentity.Repository;
 import at.grisa.agilemetrics.util.CredentialManager;
 import org.springframework.beans.factory.annotation.Autowired;
 

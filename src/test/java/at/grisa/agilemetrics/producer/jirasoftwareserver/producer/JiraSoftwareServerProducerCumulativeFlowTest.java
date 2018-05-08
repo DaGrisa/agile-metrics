@@ -4,7 +4,7 @@ import at.grisa.agilemetrics.cron.MetricQueue;
 import at.grisa.agilemetrics.entity.Metric;
 import at.grisa.agilemetrics.producer.jirasoftwareserver.JiraSoftwareServerProducer;
 import at.grisa.agilemetrics.producer.jirasoftwareserver.JiraSoftwareServerRestClient;
-import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.*;
+import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.*;
 import org.junit.Before;
 import org.junit.Test;
 

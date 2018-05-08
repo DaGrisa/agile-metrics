@@ -1,9 +1,9 @@
 package at.grisa.agilemetrics.producer.jirasoftwareserver.restclient;
 
 import at.grisa.agilemetrics.producer.jirasoftwareserver.JiraSoftwareServerRestClient;
-import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.Sprint;
-import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.VelocityReport;
-import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.VelocityStats;
+import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.Sprint;
+import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.VelocityReport;
+import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.VelocityStats;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

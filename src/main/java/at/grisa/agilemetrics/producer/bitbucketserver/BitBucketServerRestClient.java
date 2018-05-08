@@ -2,10 +2,10 @@ package at.grisa.agilemetrics.producer.bitbucketserver;
 
 import at.grisa.agilemetrics.producer.atlassian.rest.RestClientAtlassian;
 import at.grisa.agilemetrics.producer.atlassian.rest.entities.QueryParam;
-import at.grisa.agilemetrics.producer.bitbucketserver.restentities.Commit;
-import at.grisa.agilemetrics.producer.bitbucketserver.restentities.PagedEntities;
-import at.grisa.agilemetrics.producer.bitbucketserver.restentities.Project;
-import at.grisa.agilemetrics.producer.bitbucketserver.restentities.Repository;
+import at.grisa.agilemetrics.producer.bitbucketserver.restentity.Commit;
+import at.grisa.agilemetrics.producer.bitbucketserver.restentity.PagedEntities;
+import at.grisa.agilemetrics.producer.bitbucketserver.restentity.Project;
+import at.grisa.agilemetrics.producer.bitbucketserver.restentity.Repository;
 import org.springframework.core.ParameterizedTypeReference;
 
 import java.util.Arrays;

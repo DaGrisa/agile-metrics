@@ -1,7 +1,7 @@
 package at.grisa.agilemetrics.producer.sonarqube;
 
-import at.grisa.agilemetrics.producer.sonarqube.restentities.Measure;
-import at.grisa.agilemetrics.producer.sonarqube.restentities.Metric;
+import at.grisa.agilemetrics.producer.sonarqube.restentity.Measure;
+import at.grisa.agilemetrics.producer.sonarqube.restentity.Metric;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

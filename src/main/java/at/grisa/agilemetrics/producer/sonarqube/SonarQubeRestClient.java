@@ -2,7 +2,7 @@ package at.grisa.agilemetrics.producer.sonarqube;
 
 import at.grisa.agilemetrics.producer.RestClient;
 import at.grisa.agilemetrics.producer.atlassian.rest.entities.QueryParam;
-import at.grisa.agilemetrics.producer.sonarqube.restentities.*;
+import at.grisa.agilemetrics.producer.sonarqube.restentity.*;
 
 import java.util.Arrays;
 import java.util.Collection;

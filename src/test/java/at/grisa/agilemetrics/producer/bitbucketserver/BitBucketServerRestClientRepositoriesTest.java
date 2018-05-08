@@ -1,6 +1,6 @@
 package at.grisa.agilemetrics.producer.bitbucketserver;
 
-import at.grisa.agilemetrics.producer.bitbucketserver.restentities.Repository;
+import at.grisa.agilemetrics.producer.bitbucketserver.restentity.Repository;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

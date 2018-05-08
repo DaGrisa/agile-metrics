@@ -7,15 +7,15 @@ import at.grisa.agilemetrics.persistence.IVelocityRepository;
 import at.grisa.agilemetrics.persistence.entity.Velocity;
 import at.grisa.agilemetrics.producer.IProducer;
 import at.grisa.agilemetrics.producer.atlassian.rest.entities.QueryParam;
-import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.*;
-import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.greenhopper.RapidView;
-import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.greenhopper.SprintReport;
+import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.*;
+import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.greenhopper.RapidView;
+import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.greenhopper.SprintReport;
 import at.grisa.agilemetrics.util.CredentialManager;
 import at.grisa.agilemetrics.util.PropertyManager;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.Duration;
-import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -29,9 +29,9 @@ public class JiraSoftwareServerProducer implements IProducer {
         CredentialManager credentialManager = new CredentialManager();
 
         JiraSoftwareServerRestClient jiraRestClient = new JiraSoftwareServerRestClient(
-                credentialManager.getBitbucketserverBaseUrl(),
-                credentialManager.getBitbucketserverUsername(),
-                credentialManager.getBitbucketserverPassword()
+                credentialManager.getJirasoftwareBaseUrl(),
+                credentialManager.getJirasoftwareUsername(),
+                credentialManager.getJirasoftwarePassword()
         );
 
         switch (timespan) {
@@ -112,7 +112,7 @@ public class JiraSoftwareServerProducer implements IProducer {
             HashMap<String, Integer> statusCount = new HashMap<>();
             HashMap<String, Integer> statusCategoryCount = new HashMap<>();
 
-            at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.greenhopper.Sprint activeSprint = jiraRestClient.getActiveSprintGreenhopper(rapidView.getId());
+            at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.greenhopper.Sprint activeSprint = jiraRestClient.getActiveSprintGreenhopper(rapidView.getId());
             SprintReport sprintReport = jiraRestClient.getSprintReportGreenhopper(rapidView.getId(), activeSprint.getId());
 
             // enqueue completed issues estimate sum
@@ -138,8 +138,8 @@ public class JiraSoftwareServerProducer implements IProducer {
             Collection<Issue> issues = jiraRestClient.getIssuesByJQL(jql);
 
             for (Issue issue : issues) {
-                Instant start = issue.getFields().getCreated();
-                Instant end = issue.getFields().getResolutiondate();
+                ZonedDateTime start = issue.getFields().getCreated();
+                ZonedDateTime end = issue.getFields().getResolutiondate();
 
                 Long daysToFinish = Duration.between(start, end).toDays();
 

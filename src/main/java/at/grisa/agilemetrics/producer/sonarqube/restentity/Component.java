@@ -1,9 +1,9 @@
-package at.grisa.agilemetrics.producer.sonarqube.restentities;
+package at.grisa.agilemetrics.producer.sonarqube.restentity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import java.time.Instant;
+import java.time.ZonedDateTime;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Component {
@@ -11,7 +11,7 @@ public class Component {
     private String key;
     private String name;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssX")
-    private Instant lastAnalysisDate;
+    private ZonedDateTime lastAnalysisDate;
     private Measure[] measures;
 
     public Component() {
@@ -41,11 +41,11 @@ public class Component {
         this.name = name;
     }
 
-    public Instant getLastAnalysisDate() {
+    public ZonedDateTime getLastAnalysisDate() {
         return lastAnalysisDate;
     }
 
-    public void setLastAnalysisDate(Instant lastAnalysisDate) {
+    public void setLastAnalysisDate(ZonedDateTime lastAnalysisDate) {
         this.lastAnalysisDate = lastAnalysisDate;
     }
 

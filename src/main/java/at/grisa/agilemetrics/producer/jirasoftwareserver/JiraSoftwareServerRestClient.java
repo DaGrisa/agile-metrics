@@ -2,11 +2,11 @@ package at.grisa.agilemetrics.producer.jirasoftwareserver;
 
 import at.grisa.agilemetrics.producer.atlassian.rest.RestClientAtlassian;
 import at.grisa.agilemetrics.producer.atlassian.rest.entities.QueryParam;
-import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.*;
-import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.greenhopper.RapidView;
-import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.greenhopper.RapidViews;
-import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.greenhopper.SprintReport;
-import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.greenhopper.Sprints;
+import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.*;
+import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.greenhopper.RapidView;
+import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.greenhopper.RapidViews;
+import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.greenhopper.SprintReport;
+import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.greenhopper.Sprints;
 import org.springframework.core.ParameterizedTypeReference;
 
 import java.util.Arrays;
@@ -172,12 +172,12 @@ public class JiraSoftwareServerRestClient {
         return rapidViews;
     }
 
-    public at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.greenhopper.Sprint getActiveSprintGreenhopper(Long rapidviewId) {
+    public at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.greenhopper.Sprint getActiveSprintGreenhopper(Long rapidviewId) {
         String sprintsPath = "/rest/greenhopper/1.0/sprintquery/{rapidViewId}";
         String sprintsRequestPath = sprintsPath.replace("{rapidViewId}", rapidviewId.toString());
 
         Sprints sprintsResponse = restClientAtlassian.getEntity(Sprints.class, sprintsRequestPath);
-        List<at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.greenhopper.Sprint> sprints = Arrays.stream(sprintsResponse.getSprints())
+        List<at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.greenhopper.Sprint> sprints = Arrays.stream(sprintsResponse.getSprints())
                 .filter(sprint -> sprint.getState().toLowerCase().equals("active"))
                 .collect(Collectors.toList());
 

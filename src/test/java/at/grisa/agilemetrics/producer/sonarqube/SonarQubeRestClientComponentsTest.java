@@ -1,6 +1,6 @@
 package at.grisa.agilemetrics.producer.sonarqube;
 
-import at.grisa.agilemetrics.producer.sonarqube.restentities.Component;
+import at.grisa.agilemetrics.producer.sonarqube.restentity.Component;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -12,6 +12,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 
@@ -74,6 +75,6 @@ public class SonarQubeRestClientComponentsTest {
         assertEquals("check component key", "com.company:project", component.getKey());
         assertEquals("check component name", "project", component.getName());
         assertEquals("check component organization", "default-organization", component.getOrganization());
-        assertEquals("check component date", OffsetDateTime.parse("2018-03-05T09:56:35+0100", DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssX")).toInstant(), component.getLastAnalysisDate());
+        assertEquals("check component date", OffsetDateTime.parse("2018-03-05T09:56:35+0100", DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssX")).toInstant().atZone(ZoneId.of("UTC")), component.getLastAnalysisDate());
     }
 }

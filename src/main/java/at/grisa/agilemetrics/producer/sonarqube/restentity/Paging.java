@@ -1,4 +1,4 @@
-package at.grisa.agilemetrics.producer.sonarqube.restentities;
+package at.grisa.agilemetrics.producer.sonarqube.restentity;
 
 public class Paging {
     private Integer pageIndex;

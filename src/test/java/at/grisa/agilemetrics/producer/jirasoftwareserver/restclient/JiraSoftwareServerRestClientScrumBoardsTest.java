@@ -1,7 +1,7 @@
 package at.grisa.agilemetrics.producer.jirasoftwareserver.restclient;
 
 import at.grisa.agilemetrics.producer.jirasoftwareserver.JiraSoftwareServerRestClient;
-import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.Board;
+import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.Board;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

@@ -2,9 +2,9 @@ package at.grisa.agilemetrics.producer.jirasoftwareserver.restclient;
 
 import at.grisa.agilemetrics.producer.atlassian.rest.entities.QueryParam;
 import at.grisa.agilemetrics.producer.jirasoftwareserver.JiraSoftwareServerRestClient;
-import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.History;
-import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.HistoryItem;
-import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.Issue;
+import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.History;
+import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.HistoryItem;
+import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.Issue;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -16,6 +16,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 import static org.junit.Assert.assertEquals;
@@ -58,7 +59,7 @@ public class JiraSoftwareServerRestClientIssuesChangelogTest {
         assertEquals("check changelog histories count", 5, issue.getChangelog().getHistories().length);
 
         History history = issue.getChangelog().getHistories()[0];
-        assertEquals("check issue created date", OffsetDateTime.parse("2017-05-18T20:49:58.000+0200", DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX")).toInstant(), history.getCreated());
+        assertEquals("check issue created date", OffsetDateTime.parse("2017-05-18T20:49:58.000+0200", DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX")).toInstant().atZone(ZoneId.of("UTC")), history.getCreated());
 
         HistoryItem historyItem = history.getItems()[0];
         assertEquals("check issue changelog history item field", "status", historyItem.getField());

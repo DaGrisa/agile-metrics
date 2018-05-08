@@ -2,7 +2,7 @@ package at.grisa.agilemetrics.producer.atlassian.rest;
 
 import at.grisa.agilemetrics.producer.RestClient;
 import at.grisa.agilemetrics.producer.atlassian.rest.entities.QueryParam;
-import at.grisa.agilemetrics.producer.bitbucketserver.restentities.PagedEntities;
+import at.grisa.agilemetrics.producer.bitbucketserver.restentity.PagedEntities;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.support.BasicAuthorizationInterceptor;

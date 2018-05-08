@@ -1,7 +1,7 @@
 package at.grisa.agilemetrics.producer.jirasoftwareserver.restclient;
 
 import at.grisa.agilemetrics.producer.jirasoftwareserver.JiraSoftwareServerRestClient;
-import at.grisa.agilemetrics.producer.jirasoftwareserver.restentities.greenhopper.SprintReport;
+import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.greenhopper.SprintReport;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
