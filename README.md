@@ -6,7 +6,7 @@
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=at.grisa.agile-metrics%3Aagile-metrics&metric=coverage)](https://sonarcloud.io/dashboard/index/at.grisa.agile-metrics%3Aagile-metrics)
 [![Duplicated LoC Density](https://sonarcloud.io/api/project_badges/measure?project=at.grisa.agile-metrics%3Aagile-metrics&metric=duplicated_lines_density)](https://sonarcloud.io/dashboard/index/at.grisa.agile-metrics%3Aagile-metrics)
 [![NCLOC](https://sonarcloud.io/api/project_badges/measure?project=at.grisa.agile-metrics%3Aagile-metrics&metric=ncloc)](https://sonarcloud.io/dashboard/index/at.grisa.agile-metrics%3Aagile-metrics)
-[![Sqale Rating](https://sonarcloud.io/api/project_badges/measure?project=at.grisa.agile-metrics%3Aagile-metrics&metric=sqale_rating.svg)](https://sonarcloud.io/dashboard/index/at.grisa.agile-metrics%3Aagile-metrics)
+[![Sqale Rating](https://sonarcloud.io/api/project_badges/measure?project=at.grisa.agile-metrics%3Aagile-metrics&metric=sqale_rating)](https://sonarcloud.io/dashboard/index/at.grisa.agile-metrics%3Aagile-metrics)
 [![Alert Status](https://sonarcloud.io/api/project_badges/measure?project=at.grisa.agile-metrics%3Aagile-metrics&metric=alert_status)](https://sonarcloud.io/dashboard/index/at.grisa.agile-metrics%3Aagile-metrics)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=at.grisa.agile-metrics%3Aagile-metrics&metric=reliability_rating)](https://sonarcloud.io/dashboard/index/at.grisa.agile-metrics%3Aagile-metrics)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=at.grisa.agile-metrics%3Aagile-metrics&metric=security_rating)](https://sonarcloud.io/dashboard/index/at.grisa.agile-metrics%3Aagile-metrics)
