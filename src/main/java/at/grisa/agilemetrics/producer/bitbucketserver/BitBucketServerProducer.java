@@ -21,19 +21,22 @@ public class BitBucketServerProducer implements IProducer {
     private CredentialManager credentialManager;
 
     @Autowired
+    private MetricQueue metricQueue;
+
+    @Autowired
     private BitBucketServerRestClient bitBucketServerRestClient;
 
     public BitBucketServerProducer() {
     }
 
     @Override
-    public void produce(MetricQueue metricQueue, TimeSpan timespan) {
+    public void produce(TimeSpan timespan) {
         if (timespan.equals(TimeSpan.DAILY)) {
-            collectDailyCommitData(metricQueue);
+            collectDailyCommitData();
         }
     }
 
-    private void collectDailyCommitData(MetricQueue metricQueue) {
+    private void collectDailyCommitData() {
         Date created = new Date();
         Calendar cal = Calendar.getInstance();
         cal.setTime(created);

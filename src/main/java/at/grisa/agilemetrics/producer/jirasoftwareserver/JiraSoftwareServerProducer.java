@@ -13,43 +13,44 @@ import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.greenhopper.
 import at.grisa.agilemetrics.util.CredentialManager;
 import at.grisa.agilemetrics.util.PropertyManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Component
 public class JiraSoftwareServerProducer implements IProducer {
+    @Autowired
+    private JiraSoftwareServerRestClient jiraRestClient;
 
     @Autowired
-    IVelocityRepository velocityRepository;
+    private MetricQueue metricQueue;
+
+    @Autowired
+    private IVelocityRepository velocityRepository;
 
     @Override
-    public void produce(MetricQueue metricQueue, TimeSpan timespan) {
+    public void produce(TimeSpan timespan) {
         CredentialManager credentialManager = new CredentialManager();
-
-        JiraSoftwareServerRestClient jiraRestClient = new JiraSoftwareServerRestClient(
-                credentialManager.getJirasoftwareBaseUrl(),
-                credentialManager.getJirasoftwareUsername(),
-                credentialManager.getJirasoftwarePassword()
-        );
 
         switch (timespan) {
             case DAILY:
-                produceIssueVolume(metricQueue, jiraRestClient);
-                produceCumulativeFlow(metricQueue, jiraRestClient);
-                produceEstimatedStoryPoints(metricQueue, jiraRestClient);
-                produceLeadTime(metricQueue, jiraRestClient);
-                produceBugRate(metricQueue, jiraRestClient);
-                produceRecidivism(metricQueue, jiraRestClient);
-                produceAcceptanceCriteriaVolatility(metricQueue, jiraRestClient);
-                produceVelocity(metricQueue, jiraRestClient);
-                produceIssueLabels(metricQueue, jiraRestClient);
+                produceIssueVolume();
+                produceCumulativeFlow();
+                produceEstimatedStoryPoints();
+                produceLeadTime();
+                produceBugRate();
+                produceRecidivism();
+                produceAcceptanceCriteriaVolatility();
+                produceVelocity();
+                produceIssueLabels();
                 break;
         }
     }
 
-    public void produceIssueVolume(MetricQueue metricQueue, JiraSoftwareServerRestClient jiraRestClient) {
+    public void produceIssueVolume() {
         for (Board scrumBoard : jiraRestClient.getScrumBoards()) {
             Sprint activeSprint = jiraRestClient.getActiveSprint(scrumBoard.getId());
 
@@ -62,7 +63,7 @@ public class JiraSoftwareServerProducer implements IProducer {
         }
     }
 
-    public void produceCumulativeFlow(MetricQueue metricQueue, JiraSoftwareServerRestClient jiraRestClient) {
+    public void produceCumulativeFlow() {
         for (Board scrumBoard : jiraRestClient.getScrumBoards()) {
             HashMap<String, Integer> statusCount = new HashMap<>();
             HashMap<String, Integer> statusCategoryCount = new HashMap<>();
@@ -107,7 +108,7 @@ public class JiraSoftwareServerProducer implements IProducer {
         }
     }
 
-    public void produceEstimatedStoryPoints(MetricQueue metricQueue, JiraSoftwareServerRestClient jiraRestClient) {
+    public void produceEstimatedStoryPoints() {
         for (RapidView rapidView : jiraRestClient.getRapidViewsGreenhopper()) {
             HashMap<String, Integer> statusCount = new HashMap<>();
             HashMap<String, Integer> statusCategoryCount = new HashMap<>();
@@ -131,7 +132,7 @@ public class JiraSoftwareServerProducer implements IProducer {
         }
     }
 
-    public void produceLeadTime(MetricQueue metricQueue, JiraSoftwareServerRestClient jiraRestClient) {
+    public void produceLeadTime() {
         for (Board scrumBoard : jiraRestClient.getScrumBoards()) {
             String jql = jiraRestClient.getScrumBoardJQLFilter(scrumBoard.getId());
             jql = "resolutiondate > -1d AND " + jql; // only show resolved issues from last day
@@ -152,7 +153,7 @@ public class JiraSoftwareServerProducer implements IProducer {
         }
     }
 
-    public void produceBugRate(MetricQueue metricQueue, JiraSoftwareServerRestClient jiraRestClient) {
+    public void produceBugRate() {
         for (Board scrumBoard : jiraRestClient.getScrumBoards()) {
             String jql = jiraRestClient.getScrumBoardJQLFilter(scrumBoard.getId());
             jql = "resolutiondate > -1d AND type = Bug AND " + jql; // only show resolved issues from last day
@@ -167,7 +168,7 @@ public class JiraSoftwareServerProducer implements IProducer {
         }
     }
 
-    public void produceRecidivism(MetricQueue metricQueue, JiraSoftwareServerRestClient jiraRestClient) {
+    public void produceRecidivism() {
         for (Board scrumBoard : jiraRestClient.getScrumBoards()) {
             String jql = jiraRestClient.getScrumBoardJQLFilter(scrumBoard.getId());
             jql = "resolutiondate > -1d AND " + jql; // only show resolved issues from last day
@@ -210,7 +211,7 @@ public class JiraSoftwareServerProducer implements IProducer {
         }
     }
 
-    public void produceAcceptanceCriteriaVolatility(MetricQueue metricQueue, JiraSoftwareServerRestClient jiraRestClient) {
+    public void produceAcceptanceCriteriaVolatility() {
         for (Board scrumBoard : jiraRestClient.getScrumBoards()) {
             String jql = jiraRestClient.getScrumBoardJQLFilter(scrumBoard.getId());
             jql = "resolutiondate > -1d AND " + jql; // only show resolved issues from last day
@@ -240,7 +241,7 @@ public class JiraSoftwareServerProducer implements IProducer {
         }
     }
 
-    public void produceVelocity(MetricQueue metricQueue, JiraSoftwareServerRestClient jiraRestClient) {
+    public void produceVelocity() {
         for (RapidView rapidView : jiraRestClient.getRapidViewsGreenhopper()) {
             VelocityReport velocityReport = jiraRestClient.getVelocityReportGreenhopper(rapidView.getId());
 
@@ -281,7 +282,7 @@ public class JiraSoftwareServerProducer implements IProducer {
 
     }
 
-    public void produceIssueLabels(MetricQueue metricQueue, JiraSoftwareServerRestClient jiraRestClient) {
+    public void produceIssueLabels() {
         for (Board scrumBoard : jiraRestClient.getScrumBoards()) {
             String jql = jiraRestClient.getScrumBoardJQLFilter(scrumBoard.getId());
             jql = "resolutiondate > -1d AND " + jql; // only show resolved issues from last day

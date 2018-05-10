@@ -9,17 +9,32 @@ import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.greenhopper.
 import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.greenhopper.RapidView;
 import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.greenhopper.Sprint;
 import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.greenhopper.SprintReport;
+import at.grisa.agilemetrics.util.CredentialManager;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Arrays;
 import java.util.HashMap;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+@ActiveProfiles("test")
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = {JiraSoftwareServerProducer.class, CredentialManager.class, JiraSoftwareServerProducerMockConfiguration.class})
 public class JiraSoftwareServerProducerEstimatedStoryPointsTest {
+    @Autowired
     private JiraSoftwareServerRestClient jiraSoftwareServerRestClient;
+    @Autowired
+    private JiraSoftwareServerProducer jiraSoftwareServerProducer;
+    @Autowired
     private MetricQueue metricQueue;
+
     private RapidView rapidView;
     private Sprint activeSprint;
 
@@ -35,8 +50,6 @@ public class JiraSoftwareServerProducerEstimatedStoryPointsTest {
         rapidView = new RapidView();
         rapidView.setId(rapidViewId);
         rapidView.setName(rapidViewName);
-
-        jiraSoftwareServerRestClient = mock(JiraSoftwareServerRestClient.class);
         when(jiraSoftwareServerRestClient.getRapidViewsGreenhopper()).thenReturn(Arrays.asList(rapidView));
 
         activeSprint = new Sprint();
@@ -54,14 +67,11 @@ public class JiraSoftwareServerProducerEstimatedStoryPointsTest {
         SprintReport sprintReport = new SprintReport();
         sprintReport.setContents(contents);
         when(jiraSoftwareServerRestClient.getSprintReportGreenhopper(rapidView.getId(), activeSprint.getId())).thenReturn(sprintReport);
-
-        metricQueue = mock(MetricQueue.class);
     }
 
     @Test
     public void produceIssueVolumeTest() {
-        JiraSoftwareServerProducer jiraSoftwareServerProducer = new JiraSoftwareServerProducer();
-        jiraSoftwareServerProducer.produceEstimatedStoryPoints(metricQueue, jiraSoftwareServerRestClient);
+        jiraSoftwareServerProducer.produceEstimatedStoryPoints();
 
         // enqueue completed issues estimate sum
         Integer completedIssuesEstimateSum = completedEstimatedStoryPoints;

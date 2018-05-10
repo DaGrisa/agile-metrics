@@ -6,17 +6,32 @@ import at.grisa.agilemetrics.producer.jirasoftwareserver.JiraSoftwareServerProdu
 import at.grisa.agilemetrics.producer.jirasoftwareserver.JiraSoftwareServerRestClient;
 import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.Board;
 import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.Sprint;
+import at.grisa.agilemetrics.util.CredentialManager;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Arrays;
 import java.util.HashMap;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+@ActiveProfiles("test")
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = {JiraSoftwareServerProducer.class, CredentialManager.class, JiraSoftwareServerProducerMockConfiguration.class})
 public class JiraSoftwareServerProducerIssueVolumeTest {
+    @Autowired
     private JiraSoftwareServerRestClient jiraSoftwareServerRestClient;
+    @Autowired
+    private JiraSoftwareServerProducer jiraSoftwareServerProducer;
+    @Autowired
     private MetricQueue metricQueue;
+
     private Board board;
     private Sprint sprint;
 
@@ -33,18 +48,14 @@ public class JiraSoftwareServerProducerIssueVolumeTest {
         sprint.setId(sprintId);
         sprint.setName("sprintname");
 
-        jiraSoftwareServerRestClient = mock(JiraSoftwareServerRestClient.class);
         when(jiraSoftwareServerRestClient.getScrumBoards()).thenReturn(Arrays.asList(board));
         when(jiraSoftwareServerRestClient.getActiveSprint(board.getId())).thenReturn(sprint);
         when(jiraSoftwareServerRestClient.getSprintIssuesCount(boardId, sprintId)).thenReturn(issueVolume);
-
-        metricQueue = mock(MetricQueue.class);
     }
 
     @Test
     public void produceIssueVolumeTest() {
-        JiraSoftwareServerProducer jiraSoftwareServerProducer = new JiraSoftwareServerProducer();
-        jiraSoftwareServerProducer.produceIssueVolume(metricQueue, jiraSoftwareServerRestClient);
+        jiraSoftwareServerProducer.produceIssueVolume();
 
         HashMap<String, String> issueVolumeMeta = new HashMap<>();
         issueVolumeMeta.put("sprint", sprint.getName());

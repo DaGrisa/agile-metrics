@@ -10,6 +10,7 @@ import at.grisa.agilemetrics.util.CredentialManager;
 import at.grisa.agilemetrics.util.PropertyManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -19,8 +20,11 @@ import java.util.Map;
 public class SonarQubeProducer implements IProducer {
     private final static Logger log = LogManager.getLogger(SonarQubeProducer.class.getName());
 
+    @Autowired
+    private MetricQueue metricQueue;
+
     @Override
-    public void produce(MetricQueue metricQueue, TimeSpan timespan) {
+    public void produce(TimeSpan timespan) {
         CredentialManager credentialManager = new CredentialManager();
         SonarQubeRestClient sonarQubeRestClient = new SonarQubeRestClient(credentialManager.getSonarqubeBaseUrl(), credentialManager.getSonarqubeUsername(), credentialManager.getSonarqubePassword());
 

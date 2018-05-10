@@ -5,17 +5,32 @@ import at.grisa.agilemetrics.entity.Metric;
 import at.grisa.agilemetrics.producer.jirasoftwareserver.JiraSoftwareServerProducer;
 import at.grisa.agilemetrics.producer.jirasoftwareserver.JiraSoftwareServerRestClient;
 import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.*;
+import at.grisa.agilemetrics.util.CredentialManager;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Arrays;
 import java.util.HashMap;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+@ActiveProfiles("test")
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = {JiraSoftwareServerProducer.class, CredentialManager.class, JiraSoftwareServerProducerMockConfiguration.class})
 public class JiraSoftwareServerProducerCumulativeFlowTest {
+    @Autowired
     private JiraSoftwareServerRestClient jiraSoftwareServerRestClient;
+    @Autowired
+    private JiraSoftwareServerProducer jiraSoftwareServerProducer;
+    @Autowired
     private MetricQueue metricQueue;
+
     private Board board;
     private Sprint sprint;
     private Issue issue1;
@@ -66,18 +81,14 @@ public class JiraSoftwareServerProducerCumulativeFlowTest {
         issue3 = new Issue();
         issue3.setFields(fields2);
 
-        jiraSoftwareServerRestClient = mock(JiraSoftwareServerRestClient.class);
         when(jiraSoftwareServerRestClient.getScrumBoards()).thenReturn(Arrays.asList(board));
         when(jiraSoftwareServerRestClient.getActiveSprint(board.getId())).thenReturn(sprint);
         when(jiraSoftwareServerRestClient.getSprintIssuesStatus(board.getId(), sprint.getId())).thenReturn(Arrays.asList(issue1, issue2, issue3));
-
-        metricQueue = mock(MetricQueue.class);
     }
 
     @Test
     public void produceCumulativeFlowTest() {
-        JiraSoftwareServerProducer jiraSoftwareServerProducer = new JiraSoftwareServerProducer();
-        jiraSoftwareServerProducer.produceCumulativeFlow(metricQueue, jiraSoftwareServerRestClient);
+        jiraSoftwareServerProducer.produceCumulativeFlow();
 
         HashMap<String, String> meta = new HashMap<>();
         meta.put("status", status.getName());

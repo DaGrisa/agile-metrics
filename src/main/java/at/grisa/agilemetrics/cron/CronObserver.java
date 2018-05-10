@@ -53,7 +53,7 @@ public class CronObserver {
     @Scheduled(cron = "${cron.expression.daily}")
     public void activateProducerDaily() {
         for (IProducer producer : producers) {
-            producer.produce(metricQueue, TimeSpan.DAILY);
+            producer.produce(TimeSpan.DAILY);
         }
     }
 }

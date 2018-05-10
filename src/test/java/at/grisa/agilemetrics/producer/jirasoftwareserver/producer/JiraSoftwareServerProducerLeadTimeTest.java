@@ -7,8 +7,14 @@ import at.grisa.agilemetrics.producer.jirasoftwareserver.JiraSoftwareServerRestC
 import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.Board;
 import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.Fields;
 import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.Issue;
+import at.grisa.agilemetrics.util.CredentialManager;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -17,11 +23,20 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashMap;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+@ActiveProfiles("test")
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = {JiraSoftwareServerProducer.class, CredentialManager.class, JiraSoftwareServerProducerMockConfiguration.class})
 public class JiraSoftwareServerProducerLeadTimeTest {
+    @Autowired
     private JiraSoftwareServerRestClient jiraSoftwareServerRestClient;
+    @Autowired
+    private JiraSoftwareServerProducer jiraSoftwareServerProducer;
+    @Autowired
     private MetricQueue metricQueue;
+
     private Board board;
     private Issue issue1;
     private Issue issue2;
@@ -66,18 +81,14 @@ public class JiraSoftwareServerProducerLeadTimeTest {
         issue3.setKey("issue3");
         issue3.setFields(fields3);
 
-        jiraSoftwareServerRestClient = mock(JiraSoftwareServerRestClient.class);
         when(jiraSoftwareServerRestClient.getScrumBoards()).thenReturn(Arrays.asList(board));
         when(jiraSoftwareServerRestClient.getScrumBoardJQLFilter(boardId)).thenReturn(boardJql);
         when(jiraSoftwareServerRestClient.getIssuesByJQL("resolutiondate > -1d AND " + boardJql)).thenReturn(Arrays.asList(issue1, issue2, issue3));
-
-        metricQueue = mock(MetricQueue.class);
     }
 
     @Test
     public void produceLeadTimeTest() {
-        JiraSoftwareServerProducer jiraSoftwareServerProducer = new JiraSoftwareServerProducer();
-        jiraSoftwareServerProducer.produceLeadTime(metricQueue, jiraSoftwareServerRestClient);
+        jiraSoftwareServerProducer.produceLeadTime();
 
         HashMap<String, String> meta = new HashMap<>();
         meta.put("issue", issue1.getKey());

@@ -7,7 +7,9 @@ import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.greenhopper.
 import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.greenhopper.RapidViews;
 import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.greenhopper.SprintReport;
 import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.greenhopper.Sprints;
+import at.grisa.agilemetrics.util.CredentialManager;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -15,10 +17,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Component
 public class JiraSoftwareServerRestClient {
     private final RestClientAtlassian restClientAtlassian;
 
-    public JiraSoftwareServerRestClient(String hostUrl, String user, String password) {
+    public JiraSoftwareServerRestClient(CredentialManager credentialManager) {
+        String hostUrl = credentialManager.getJirasoftwareBaseUrl();
+        String user = credentialManager.getJirasoftwareUsername();
+        String password = credentialManager.getJirasoftwarePassword();
+
         this.restClientAtlassian = new RestClientAtlassian(hostUrl, user, password);
     }
 
