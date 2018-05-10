@@ -5,26 +5,29 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class CredentialManager {
-    @Value("${producer.bitbucketserver.baseUrl}")
+    @Value("${producer.bitbucketserver.baseUrl:@null}")
     private String bitbucketserverBaseUrl;
-    @Value("${producer.bitbucketserver.username}")
+    @Value("${producer.bitbucketserver.username:@null}")
     private String bitbucketserverUsername;
-    @Value("${producer.bitbucketserver.password}")
+    @Value("${producer.bitbucketserver.password:@null}")
     private String bitbucketserverPassword;
 
-    @Value("${producer.jirasoftware.baseUrl}")
+    @Value("${producer.jirasoftware.baseUrl:@null}")
     private String jirasoftwareBaseUrl;
-    @Value("${producer.jirasoftware.username}")
+    @Value("${producer.jirasoftware.username:@null}")
     private String jirasoftwareUsername;
-    @Value("${producer.jirasoftware.password}")
+    @Value("${producer.jirasoftware.password:@null}")
     private String jirasoftwarePassword;
 
-    @Value("${producer.sonarqube.baseUrl}")
+    @Value("${producer.sonarqube.baseUrl:@null}")
     private String sonarqubeBaseUrl;
-    @Value("${producer.sonarqube.username}")
+    @Value("${producer.sonarqube.username:@null}")
     private String sonarqubeUsername;
-    @Value("${producer.sonarqube.password}")
+    @Value("${producer.sonarqube.password:@null}")
     private String sonarqubePassword;
+
+    @Value("${consumer.elasicsearch.baseUrl:@null}")
+    private String elasicsearchBaseUrl;
 
     public CredentialManager() {
     }
@@ -38,8 +41,9 @@ public class CredentialManager {
     public String getBitbucketserverPassword() {
         return bitbucketserverPassword;
     }
+
     public boolean isBitbucketserverActive() {
-        return !this.bitbucketserverBaseUrl.isEmpty() && !this.bitbucketserverUsername.isEmpty() && !this.bitbucketserverPassword.isEmpty();
+        return !(this.bitbucketserverBaseUrl == null) && !(this.bitbucketserverUsername == null) && !(this.bitbucketserverPassword == null);
     }
 
     public String getJirasoftwareBaseUrl() {
@@ -53,7 +57,7 @@ public class CredentialManager {
     }
 
     public boolean isJirasoftwareActive() {
-        return !this.jirasoftwareBaseUrl.isEmpty() && !this.jirasoftwareUsername.isEmpty() && !this.jirasoftwarePassword.isEmpty();
+        return !(this.jirasoftwareBaseUrl == null) && !(this.jirasoftwareUsername == null) && !(this.jirasoftwarePassword == null);
     }
 
     public String getSonarqubeBaseUrl() {
@@ -67,6 +71,14 @@ public class CredentialManager {
     }
 
     public boolean isSonarqubeActive() {
-        return !this.sonarqubeBaseUrl.isEmpty() && !this.sonarqubeUsername.isEmpty() && !this.sonarqubePassword.isEmpty();
+        return !(this.sonarqubeBaseUrl == null) && !(this.sonarqubeUsername == null) && !(this.sonarqubePassword == null);
+    }
+
+    public String getElasicsearchBaseUrl() {
+        return elasicsearchBaseUrl;
+    }
+
+    public boolean isElasticsearchActive() {
+        return !(this.elasicsearchBaseUrl == null);
     }
 }

@@ -1,13 +1,21 @@
 package at.grisa.agilemetrics.consumer;
 
+import at.grisa.agilemetrics.ApplicationConfig;
 import at.grisa.agilemetrics.consumer.elasticsearch.ElasticSearchRestClient;
 import at.grisa.agilemetrics.entity.Metric;
+import at.grisa.agilemetrics.util.CredentialManager;
+import at.grisa.agilemetrics.util.PropertyManager;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockserver.client.server.MockServerClient;
 import org.mockserver.junit.MockServerRule;
 import org.mockserver.model.HttpRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -20,11 +28,17 @@ import java.util.*;
 import static org.mockserver.model.Header.header;
 import static org.mockserver.model.HttpResponse.response;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = {ElasticSearchRestClient.class, CredentialManager.class, PropertyManager.class, ApplicationConfig.class})
+@TestPropertySource("classpath:elasticsearch-test.properties")
 public class ElasticSearchRestClientTest {
     @Rule
-    public MockServerRule mockServerRule = new MockServerRule(this);
+    public MockServerRule mockServerRule = new MockServerRule(this, 1080);
     private MockServerClient mockServerClient;
     private HttpRequest httpRequest;
+
+    @Autowired
+    private ElasticSearchRestClient restClient;
 
     @Before
     public void mockESServer() throws URISyntaxException, IOException {
@@ -59,7 +73,6 @@ public class ElasticSearchRestClientTest {
         metrics.add(new Metric(3.5, "metric3", meta, tags, OffsetDateTime.parse("2017-11-06T11:00:46.000+0100", DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX")).toZonedDateTime()));
         metrics.add(new Metric(4.5, "metric4", meta, tags, OffsetDateTime.parse("2017-11-06T11:00:46.000+0100", DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX")).toZonedDateTime()));
 
-        ElasticSearchRestClient restClient = new ElasticSearchRestClient("http://localhost:" + mockServerRule.getPort());
         restClient.saveMetrics(metrics);
 
         mockServerClient.verify(httpRequest);
