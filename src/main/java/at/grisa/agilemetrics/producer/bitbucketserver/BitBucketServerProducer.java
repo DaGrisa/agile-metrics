@@ -9,19 +9,21 @@ import at.grisa.agilemetrics.producer.bitbucketserver.restentity.Project;
 import at.grisa.agilemetrics.producer.bitbucketserver.restentity.Repository;
 import at.grisa.agilemetrics.util.CredentialManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+@Component
+@Lazy
 public class BitBucketServerProducer implements IProducer {
     @Autowired
     private CredentialManager credentialManager;
 
+    @Autowired
     private BitBucketServerRestClient bitBucketServerRestClient;
 
     public BitBucketServerProducer() {
-        bitBucketServerRestClient = new BitBucketServerRestClient(credentialManager.getBitbucketserverUsername(),
-                credentialManager.getBitbucketserverPassword(),
-                credentialManager.getBitbucketserverBaseUrl());
     }
 
     @Override

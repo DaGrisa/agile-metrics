@@ -1,11 +1,18 @@
 package at.grisa.agilemetrics.producer.bitbucketserver;
 
+import at.grisa.agilemetrics.ApplicationConfig;
 import at.grisa.agilemetrics.producer.bitbucketserver.restentity.Commit;
+import at.grisa.agilemetrics.util.CredentialManager;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockserver.client.server.MockServerClient;
 import org.mockserver.junit.MockServerRule;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -18,9 +25,15 @@ import static org.mockserver.model.Header.header;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = {BitBucketServerRestClient.class, CredentialManager.class, ApplicationConfig.class})
+@TestPropertySource("classpath:bitbucket-test.properties")
 public class BitBucketServerRestClientCommitsTest {
+    @Autowired
+    private BitBucketServerRestClient client;
+
     @Rule
-    public MockServerRule mockServerRule = new MockServerRule(this);
+    public MockServerRule mockServerRule = new MockServerRule(this, 1080);
     private MockServerClient mockServerClient;
     private Collection<Commit> commits;
 
@@ -42,7 +55,6 @@ public class BitBucketServerRestClientCommitsTest {
 
         String projectKey = "PRJ";
         String repositorySlug = "REPO";
-        BitBucketServerRestClient client = new BitBucketServerRestClient("http://localhost:" + mockServerRule.getPort(), "user", "password");
         commits = client.getCommits(projectKey, repositorySlug);
     }
 

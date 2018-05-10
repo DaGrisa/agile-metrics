@@ -6,17 +6,24 @@ import at.grisa.agilemetrics.producer.bitbucketserver.restentity.Commit;
 import at.grisa.agilemetrics.producer.bitbucketserver.restentity.PagedEntities;
 import at.grisa.agilemetrics.producer.bitbucketserver.restentity.Project;
 import at.grisa.agilemetrics.producer.bitbucketserver.restentity.Repository;
+import at.grisa.agilemetrics.util.CredentialManager;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
 
+@Component
 public class BitBucketServerRestClient {
     private final RestClientAtlassian restClientAtlassian;
 
-    public BitBucketServerRestClient(String hostUrl, String user, String password) {
+    public BitBucketServerRestClient(CredentialManager credentialManager) {
+        String hostUrl = credentialManager.getBitbucketserverBaseUrl();
+        String user = credentialManager.getBitbucketserverUsername();
+        String password = credentialManager.getBitbucketserverPassword();
+
         this.restClientAtlassian = new RestClientAtlassian(hostUrl, user, password);
     }
 
