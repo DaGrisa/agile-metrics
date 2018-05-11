@@ -1,12 +1,19 @@
 package at.grisa.agilemetrics.producer.sonarqube;
 
+import at.grisa.agilemetrics.ApplicationConfig;
 import at.grisa.agilemetrics.producer.sonarqube.restentity.Measure;
 import at.grisa.agilemetrics.producer.sonarqube.restentity.Metric;
+import at.grisa.agilemetrics.util.CredentialManager;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockserver.client.server.MockServerClient;
 import org.mockserver.junit.MockServerRule;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -19,9 +26,15 @@ import static org.mockserver.model.Header.header;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = {SonarQubeRestClient.class, CredentialManager.class, ApplicationConfig.class})
+@TestPropertySource("classpath:sonarqube-test.properties")
 public class SonarQubeRestClientMeasuresTest {
+    @Autowired
+    private SonarQubeRestClient client;
+
     @Rule
-    public MockServerRule mockServerRule = new MockServerRule(this);
+    public MockServerRule mockServerRule = new MockServerRule(this, 1080);
     private MockServerClient mockServerClient;
     private Collection<Measure> measures;
 
@@ -43,7 +56,6 @@ public class SonarQubeRestClientMeasuresTest {
                                 .withBody(responseBody)
                 );
 
-        SonarQubeRestClient client = new SonarQubeRestClient("http://localhost:" + mockServerRule.getPort(), "user", "password");
         measures = client.getMeasures("component", Metric.COVERAGE);
     }
 

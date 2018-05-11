@@ -50,7 +50,7 @@ public class CronObserver {
         }
     }
 
-    @Scheduled(cron = "${cron.expression.daily}")
+    @Scheduled(cron = "${cron.expression.daily:0 10 0 * * ?}")
     public void activateProducerDaily() {
         for (IProducer producer : producers) {
             producer.produce(TimeSpan.DAILY);

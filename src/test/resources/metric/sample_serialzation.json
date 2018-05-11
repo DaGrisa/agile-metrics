@@ -1,0 +1,11 @@
+{
+  "value": 1.0,
+  "name": "Cumulative Flow - Status",
+  "meta": {
+    "sprint": "sprintname",
+    "board": "boardname",
+    "status": "status name 2"
+  },
+  "date": "2018-05-11T15:16:22.714+02:00",
+  "tags": null
+}

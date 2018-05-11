@@ -7,11 +7,14 @@ import java.util.Objects;
 import java.util.Set;
 
 public final class Metric {
-    public final Double value;
-    public final String name;
-    public final Map meta;
-    public final ZonedDateTime date;
-    public final Set<String> tags;
+    private Double value;
+    private String name;
+    private Map<String, String> meta;
+    private ZonedDateTime date;
+    private Set<String> tags;
+
+    public Metric() {
+    }
 
     public Metric(Double value, String name, Map<String, String> meta) {
         this.value = value;
@@ -35,6 +38,46 @@ public final class Metric {
         this.meta = meta;
         this.tags = tags;
         this.date = date;
+    }
+
+    public Double getValue() {
+        return value;
+    }
+
+    public void setValue(Double value) {
+        this.value = value;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Map<String, String> getMeta() {
+        return meta;
+    }
+
+    public void setMeta(Map<String, String> meta) {
+        this.meta = meta;
+    }
+
+    public ZonedDateTime getDate() {
+        return date;
+    }
+
+    public void setDate(ZonedDateTime date) {
+        this.date = date;
+    }
+
+    public Set<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(Set<String> tags) {
+        this.tags = tags;
     }
 
     @Override

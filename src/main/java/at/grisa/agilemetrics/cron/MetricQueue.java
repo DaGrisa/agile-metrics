@@ -4,6 +4,7 @@ import at.grisa.agilemetrics.entity.Metric;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -17,19 +18,21 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 public class MetricQueue {
     private final static Logger log = LogManager.getLogger(MetricQueue.class);
 
-    private final String QUEUE_DIR = "queuedFiles";
-    private final String ERROR_DIR = QUEUE_DIR + "/error";
+    public static final String QUEUE_DIR = "queuedFiles";
+
+    @Autowired
+    ObjectMapper mapper;
 
     public MetricQueue() {
         createDirectory(QUEUE_DIR);
-        createDirectory(ERROR_DIR);
     }
 
-    private void createDirectory(String directoryPath) {
+    public static void createDirectory(String directoryPath) {
         File directory = new File(directoryPath);
 
         if (!directory.exists()) {
             try {
+                log.info("creating directory " + directoryPath);
                 directory.mkdir();
             } catch (SecurityException e) {
                 log.error("unable to create directory " + directoryPath, e);
@@ -38,8 +41,9 @@ public class MetricQueue {
     }
 
     public void enqueueMetric(Metric metric) {
+        log.debug("enqueuing metric " + metric);
+
         String filepath = QUEUE_DIR + "/" + System.currentTimeMillis() + "_" + Math.random() * 1000 + ".json";
-        ObjectMapper mapper = new ObjectMapper();
 
         try {
             mapper.writeValue(new File(filepath), metric);
@@ -52,14 +56,14 @@ public class MetricQueue {
         File nextMetricFile = getNextMetricFile();
 
         if (nextMetricFile != null) {
-            ObjectMapper objectMapper = new ObjectMapper();
             Metric metric = null;
 
             try {
-                metric = objectMapper.readValue(nextMetricFile, Metric.class);
+                metric = mapper.readValue(nextMetricFile, Metric.class);
+                log.debug("dequeued metric " + metric);
             } catch (IOException e) {
-                log.error("could not read json data from file " + nextMetricFile.getName(), e);
-                moveErrorMetricFile(nextMetricFile, e);
+                log.error("could not read json data from file " + nextMetricFile.getName() + ", moving to error folder", e);
+                moveErrorMetricFile(nextMetricFile);
             }
 
             deleteMetricFile(nextMetricFile);
@@ -87,16 +91,18 @@ public class MetricQueue {
         return nextMetricFile;
     }
 
-    private void moveErrorMetricFile(File nextMetricFile, IOException e) {
-        File nextMetricFileError = new File(ERROR_DIR + nextMetricFile.getName());
+    private void moveErrorMetricFile(File nextMetricFile) {
+        File nextMetricFileError = new File(".." + File.separator + MetricErrorHandler.ERROR_DIR + File.separator + nextMetricFile.getName());
+        log.debug("new metric error file " + nextMetricFile.getName());
         try {
             Files.move(nextMetricFile.toPath(), nextMetricFileError.toPath(), REPLACE_EXISTING);
-        } catch (IOException e1) {
+        } catch (IOException e) {
             log.error("unable to move file to error folder", e);
         }
     }
 
     private void deleteMetricFile(File nextMetricFile) {
+        log.debug("deleting " + nextMetricFile.getName());
         try {
             Files.delete(nextMetricFile.toPath());
         } catch (IOException e) {

@@ -3,15 +3,20 @@ package at.grisa.agilemetrics.producer.sonarqube;
 import at.grisa.agilemetrics.producer.RestClient;
 import at.grisa.agilemetrics.producer.atlassian.rest.entities.QueryParam;
 import at.grisa.agilemetrics.producer.sonarqube.restentity.*;
+import at.grisa.agilemetrics.util.CredentialManager;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+@org.springframework.stereotype.Component
 public class SonarQubeRestClient {
     private final RestClient restClient;
 
-    public SonarQubeRestClient(String host, String user, String password) {
+    public SonarQubeRestClient(CredentialManager credentialManager) {
+        String host = credentialManager.getSonarqubeBaseUrl();
+        String user = credentialManager.getSonarqubeUsername();
+        String password = credentialManager.getSonarqubePassword();
         restClient = new RestClient(host, user, password);
     }
 

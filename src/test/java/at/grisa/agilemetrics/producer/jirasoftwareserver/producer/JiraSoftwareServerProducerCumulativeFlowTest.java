@@ -1,5 +1,6 @@
 package at.grisa.agilemetrics.producer.jirasoftwareserver.producer;
 
+import at.grisa.agilemetrics.ApplicationConfig;
 import at.grisa.agilemetrics.cron.MetricQueue;
 import at.grisa.agilemetrics.entity.Metric;
 import at.grisa.agilemetrics.producer.jirasoftwareserver.JiraSoftwareServerProducer;
@@ -22,7 +23,7 @@ import static org.mockito.Mockito.when;
 
 @ActiveProfiles("test")
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {JiraSoftwareServerProducer.class, CredentialManager.class, JiraSoftwareServerProducerMockConfiguration.class})
+@ContextConfiguration(classes = {JiraSoftwareServerProducer.class, CredentialManager.class, JiraSoftwareServerProducerMockConfiguration.class, ApplicationConfig.class})
 public class JiraSoftwareServerProducerCumulativeFlowTest {
     @Autowired
     private JiraSoftwareServerRestClient jiraSoftwareServerRestClient;

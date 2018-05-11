@@ -2,6 +2,7 @@ package at.grisa.agilemetrics.consumer;
 
 import at.grisa.agilemetrics.ApplicationConfig;
 import at.grisa.agilemetrics.consumer.elasticsearch.ElasticSearchRestClient;
+import at.grisa.agilemetrics.cron.MetricErrorHandler;
 import at.grisa.agilemetrics.entity.Metric;
 import at.grisa.agilemetrics.util.CredentialManager;
 import at.grisa.agilemetrics.util.PropertyManager;
@@ -29,7 +30,7 @@ import static org.mockserver.model.Header.header;
 import static org.mockserver.model.HttpResponse.response;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {ElasticSearchRestClient.class, CredentialManager.class, PropertyManager.class, ApplicationConfig.class})
+@ContextConfiguration(classes = {ElasticSearchRestClient.class, CredentialManager.class, PropertyManager.class, MetricErrorHandler.class, ApplicationConfig.class})
 @TestPropertySource("classpath:elasticsearch-test.properties")
 public class ElasticSearchRestClientTest {
     @Rule

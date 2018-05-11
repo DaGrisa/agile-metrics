@@ -1,6 +1,7 @@
 package at.grisa.agilemetrics.consumer.elasticsearch;
 
 import at.grisa.agilemetrics.consumer.elasticsearch.restentity.BulkResponse;
+import at.grisa.agilemetrics.cron.MetricErrorHandler;
 import at.grisa.agilemetrics.entity.Metric;
 import at.grisa.agilemetrics.producer.sonarqube.SonarQubeProducer;
 import at.grisa.agilemetrics.util.CredentialManager;
@@ -25,6 +26,9 @@ import java.util.Collection;
 @Lazy
 public class ElasticSearchRestClient {
     private final static org.apache.logging.log4j.Logger log = LogManager.getLogger(SonarQubeProducer.class.getName());
+
+    @Autowired
+    private MetricErrorHandler metricErrorHandler;
 
     private final String hostUrl;
     private final String indexName;
@@ -54,6 +58,7 @@ public class ElasticSearchRestClient {
                 requestBuilder.append(jsonValue + "\n");
             } catch (JsonProcessingException e) {
                 log.error("Error when converting to JSON", e);
+                metricErrorHandler.saveErrorMetric(metric);
             }
         }
 
@@ -71,10 +76,12 @@ public class ElasticSearchRestClient {
             ).getBody();
         } catch (ResourceAccessException e) {
             log.error("ElasticSearch host not reachable!", e);
+            metricErrorHandler.saveErrorMetrics(metrics);
         }
 
         if (response != null && response.getErrors()) {
             log.error("Error sending bulk metrics to elasticsearch.");
+            metricErrorHandler.saveErrorMetrics(metrics);
         }
     }
 

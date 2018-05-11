@@ -1,7 +1,9 @@
 package at.grisa.agilemetrics.consumer;
 
+import at.grisa.agilemetrics.ApplicationConfig;
 import at.grisa.agilemetrics.consumer.elasticsearch.ElasticSearchConsumer;
 import at.grisa.agilemetrics.consumer.elasticsearch.ElasticSearchRestClient;
+import at.grisa.agilemetrics.cron.MetricErrorHandler;
 import at.grisa.agilemetrics.entity.Metric;
 import at.grisa.agilemetrics.util.CredentialManager;
 import at.grisa.agilemetrics.util.PropertyManager;
@@ -24,7 +26,7 @@ import static org.mockito.Mockito.verify;
 
 @ActiveProfiles("test")
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {ElasticSearchConsumer.class, CredentialManager.class, PropertyManager.class, ElasticSearchRestClientMockConfiguration.class})
+@ContextConfiguration(classes = {ElasticSearchConsumer.class, CredentialManager.class, PropertyManager.class, MetricErrorHandler.class, ApplicationConfig.class, ElasticSearchRestClientMockConfiguration.class})
 @TestPropertySource("classpath:elasticsearch-test.properties")
 public class ElasticSearchConsumerTest {
     @Autowired

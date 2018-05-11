@@ -4,6 +4,7 @@ import at.grisa.agilemetrics.consumer.elasticsearch.ElasticSearchConsumer;
 import at.grisa.agilemetrics.cron.CronObserver;
 import at.grisa.agilemetrics.producer.bitbucketserver.BitBucketServerProducer;
 import at.grisa.agilemetrics.producer.jirasoftwareserver.JiraSoftwareServerProducer;
+import at.grisa.agilemetrics.producer.sonarqube.SonarQubeProducer;
 import at.grisa.agilemetrics.util.CredentialManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -34,6 +35,8 @@ public class Initializer {
     private BitBucketServerProducer bitBucketServerProducer;
     @Autowired
     private JiraSoftwareServerProducer jiraSoftwareServerProducer;
+    @Autowired
+    private SonarQubeProducer sonarQubeProducer;
 
     @EventListener
     public void initApplication(ContextRefreshedEvent event) {
@@ -56,6 +59,7 @@ public class Initializer {
 
         if (credentialManager.isSonarqubeActive()) {
             log.info("SonarQube configuration detected, registering as producer.");
+            cronObserver.registerProducer(sonarQubeProducer);
         }
     }
 }

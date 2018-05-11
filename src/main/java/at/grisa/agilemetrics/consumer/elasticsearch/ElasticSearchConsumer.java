@@ -15,13 +15,13 @@ import java.util.Collection;
 @Lazy
 public class ElasticSearchConsumer implements IConsumer {
     private ElasticSearchRestClient restClient;
-    private Collection<Metric> metricsQueue;
+    private Collection<Metric> metrics;
     private PropertyManager propertyManager;
 
     @Autowired
     public ElasticSearchConsumer(ElasticSearchRestClient restClient, PropertyManager propertyManager) {
         this.restClient = restClient;
-        this.metricsQueue = new ArrayList<>();
+        this.metrics = new ArrayList<>();
         this.propertyManager = propertyManager;
     }
 
@@ -31,17 +31,17 @@ public class ElasticSearchConsumer implements IConsumer {
     }
 
     private void collectForBatch(Metric metric) {
-        this.metricsQueue.add(metric);
-        if (metricsQueue.size() >= propertyManager.getElasticSearchBatchSize()) {
+        this.metrics.add(metric);
+        if (metrics.size() >= propertyManager.getElasticSearchBatchSize()) {
             checkAndSave();
         }
     }
 
     @Scheduled(fixedRate = 5000)
     public void checkAndSave() {
-        if (!metricsQueue.isEmpty()) {
-            restClient.saveMetrics(new ArrayList<>(metricsQueue));
-            metricsQueue.clear();
+        if (!metrics.isEmpty()) {
+            restClient.saveMetrics(new ArrayList<>(metrics));
+            metrics.clear();
         }
     }
 }

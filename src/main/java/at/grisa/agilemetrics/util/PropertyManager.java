@@ -58,7 +58,7 @@ public class PropertyManager {
     }
 
     public Integer getElasticSearchBatchSize() {
-        if (elasticsearchBatchSize.isEmpty()) {
+        if (elasticsearchBatchSize == null || elasticsearchBatchSize.isEmpty()) {
             return ELASTICSEARCH_BATCHSIZE_DEFAULT;
         }
         return Integer.valueOf(elasticsearchBatchSize);
