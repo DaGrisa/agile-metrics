@@ -18,7 +18,7 @@
 Agile Metrics is a collector for software development process KPI data.
 It collects measurements from [Producers](#producer), creates metrics and sends them to [Consumers](#consumer).
 
-[![Agile Metrics Overview](overview.png)]
+![Agile Metrics Overview](overview.png)
 
 ## <a href="producer"></a>Producer
 
