@@ -9,6 +9,7 @@ import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.Board;
 import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.Fields;
 import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.Issue;
 import at.grisa.agilemetrics.util.CredentialManager;
+import at.grisa.agilemetrics.util.PropertyManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,7 +30,7 @@ import static org.mockito.Mockito.when;
 
 @ActiveProfiles("test")
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {JiraSoftwareServerProducer.class, CredentialManager.class, JiraSoftwareServerProducerMockConfiguration.class, ApplicationConfig.class})
+@ContextConfiguration(classes = {JiraSoftwareServerProducer.class, CredentialManager.class, PropertyManager.class, JiraSoftwareServerProducerMockConfiguration.class, ApplicationConfig.class})
 public class JiraSoftwareServerProducerLeadTimeTest {
     @Autowired
     private JiraSoftwareServerRestClient jiraSoftwareServerRestClient;
@@ -93,17 +94,17 @@ public class JiraSoftwareServerProducerLeadTimeTest {
 
         HashMap<String, String> meta = new HashMap<>();
         meta.put("issue", issue1.getKey());
-        meta.put("scrum-board", board.getName());
+        meta.put("board", board.getName());
         Metric leadTime1 = new Metric(2.0, "Lead Time", meta);
 
         HashMap<String, String> meta2 = new HashMap<>();
         meta2.put("issue", issue2.getKey());
-        meta2.put("scrum-board", board.getName());
+        meta2.put("board", board.getName());
         Metric leadTime2 = new Metric(4.0, "Lead Time", meta2);
 
         HashMap<String, String> meta3 = new HashMap<>();
         meta3.put("issue", issue3.getKey());
-        meta3.put("scrum-board", board.getName());
+        meta3.put("board", board.getName());
         Metric leadTime3 = new Metric(1.0, "Lead Time", meta3);
 
 

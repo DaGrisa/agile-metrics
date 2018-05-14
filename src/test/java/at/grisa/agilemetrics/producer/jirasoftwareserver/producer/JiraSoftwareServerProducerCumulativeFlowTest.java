@@ -7,6 +7,7 @@ import at.grisa.agilemetrics.producer.jirasoftwareserver.JiraSoftwareServerProdu
 import at.grisa.agilemetrics.producer.jirasoftwareserver.JiraSoftwareServerRestClient;
 import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.*;
 import at.grisa.agilemetrics.util.CredentialManager;
+import at.grisa.agilemetrics.util.PropertyManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,7 +24,7 @@ import static org.mockito.Mockito.when;
 
 @ActiveProfiles("test")
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {JiraSoftwareServerProducer.class, CredentialManager.class, JiraSoftwareServerProducerMockConfiguration.class, ApplicationConfig.class})
+@ContextConfiguration(classes = {JiraSoftwareServerProducer.class, CredentialManager.class, PropertyManager.class, JiraSoftwareServerProducerMockConfiguration.class, ApplicationConfig.class})
 public class JiraSoftwareServerProducerCumulativeFlowTest {
     @Autowired
     private JiraSoftwareServerRestClient jiraSoftwareServerRestClient;
