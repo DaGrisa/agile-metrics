@@ -14,6 +14,7 @@ public class Commit {
     private Date committerTimestamp;
 
     public Commit() {
+        // default constructor
     }
 
     public String getId() {

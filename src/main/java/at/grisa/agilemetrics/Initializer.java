@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class Initializer {
-    private final static Logger log = LogManager.getLogger(Application.class);
+    private static final Logger log = LogManager.getLogger(Application.class);
 
     @Autowired
     private CredentialManager credentialManager;

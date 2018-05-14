@@ -4,6 +4,7 @@ public class Sprints {
     private Sprint[] sprints;
 
     public Sprints() {
+        // default constructor
     }
 
     public Sprint[] getSprints() {

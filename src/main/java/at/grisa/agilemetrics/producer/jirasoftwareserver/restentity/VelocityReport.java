@@ -7,6 +7,7 @@ public class VelocityReport {
     private Map<String, VelocityStats> velocityStatEntries;
 
     public VelocityReport() {
+        // default constructor
     }
 
     public Sprint[] getSprints() {

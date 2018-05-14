@@ -19,7 +19,22 @@ import java.util.stream.Collectors;
 
 @Component
 public class JiraSoftwareServerRestClient {
+    public static final String QUERYPARAM_START = "start";
+    public static final String PLACEHOLDER_BOARDID = "{boardId}";
+    public static final String PLACEHOLDER_SPRINTID = "{sprintId}";
+
     private final RestClientAtlassian restClientAtlassian;
+    public static final String PATH_BOARDS = "/rest/agile/1.0/board";
+    public static final String PATH_BOARDCONFIG = "/rest/agile/1.0/board/{boardId}/configuration";
+    public static final String PATH_BOARDFILTER = "/rest/api/2/filter/{filterId}";
+    public static final String PATH_ISSUE = "/rest/api/2/issue/{issueId}";
+    public static final String PATH_SEARCH = "/rest/api/2/search";
+    public static final String PATH_BOARDSPRINTS = "/rest/agile/1.0/board/{boardId}/sprint";
+    public static final String PATH_SPRINTISSUES = "/rest/agile/1.0/board/{boardId}/sprint/{sprintId}/issue";
+    public static final String PATH_RAPIDVIEWS = "/rest/greenhopper/1.0/rapidview";
+    public static final String PATH_SPRINTQUERY = "/rest/greenhopper/1.0/sprintquery/{rapidViewId}";
+    public static final String PATH_SPRINTREPORT = "/rest/greenhopper/1.0/rapid/charts/sprintreport";
+    public static final String PATH_VELOCITYREPORT = "/rest/greenhopper/1.0/rapid/charts/velocity";
 
     public JiraSoftwareServerRestClient(CredentialManager credentialManager) {
         String hostUrl = credentialManager.getJirasoftwareBaseUrl();
@@ -30,18 +45,17 @@ public class JiraSoftwareServerRestClient {
     }
 
     public Collection<Board> getScrumBoards() {
-        String boardsPath = "/rest/agile/1.0/board";
         LinkedList<Board> boards = new LinkedList<>();
         Integer startElementIndex = 0;
         Boolean boardsToLoad = true;
 
         while (boardsToLoad) {
-            QueryParam startElement = new QueryParam("start", startElementIndex);
+            QueryParam startElement = new QueryParam(QUERYPARAM_START, startElementIndex);
             PagedEntities<Board> pagedBoards = restClientAtlassian.getPagedEntities(new ParameterizedTypeReference<PagedEntities<Board>>() {
-            }, boardsPath, startElement);
+            }, PATH_BOARDS, startElement);
 
             for (Board board : pagedBoards.getValues()) {
-                if (board.getType().toLowerCase().equals("scrum")) {
+                if (board.getType().equalsIgnoreCase("scrum")) {
                     boards.add(board);
                 }
             }
@@ -54,27 +68,23 @@ public class JiraSoftwareServerRestClient {
     }
 
     public String getScrumBoardJQLFilter(Long boardId) {
-        String boardConfigPath = "/rest/agile/1.0/board/{boardId}/configuration";
-        String boardConfigRequestPath = boardConfigPath.replace("{boardId}", boardId.toString());
+        String boardConfigRequestPath = PATH_BOARDCONFIG.replace(PLACEHOLDER_BOARDID, boardId.toString());
         BoardConfiguration boardConfiguration = restClientAtlassian.getEntity(BoardConfiguration.class, boardConfigRequestPath);
 
-        String boardFilterPath = "/rest/api/2/filter/{filterId}";
-        String boardFilterRequestPath = boardFilterPath.replace("{filterId}", boardConfiguration.getFilter().getId().toString());
+        String boardFilterRequestPath = PATH_BOARDFILTER.replace("{filterId}", boardConfiguration.getFilter().getId().toString());
         Filter boardFilter = restClientAtlassian.getEntity(Filter.class, boardFilterRequestPath);
 
         return boardFilter.getJql();
     }
 
     public Issue getIssue(Long issueId, QueryParam... queryParams) {
-        String issuePath = "/rest/api/2/issue/{issueId}";
-        String issueRequestPath = issuePath.replace("{issueId}", issueId.toString());
+        String issueRequestPath = PATH_ISSUE.replace("{issueId}", issueId.toString());
         Issue issue = restClientAtlassian.getEntity(Issue.class, issueRequestPath, queryParams);
 
         return issue;
     }
 
     public Collection<Issue> getIssuesByJQL(String jql) {
-        String searchPath = "/rest/api/2/search";
         QueryParam jqlQueryParam = new QueryParam("jql", jql);
 
         LinkedList<Issue> issues = new LinkedList<>();
@@ -82,9 +92,9 @@ public class JiraSoftwareServerRestClient {
         Boolean issuesToLoad = true;
 
         while (issuesToLoad) {
-            QueryParam startElementIndexQueryParam = new QueryParam("start", startElementIndex);
+            QueryParam startElementIndexQueryParam = new QueryParam(QUERYPARAM_START, startElementIndex);
             PagedEntities<Issue> pagedIssues = restClientAtlassian.getPagedEntities(new ParameterizedTypeReference<PagedEntities<Issue>>() {
-            }, searchPath, jqlQueryParam, startElementIndexQueryParam);
+            }, PATH_SEARCH, jqlQueryParam, startElementIndexQueryParam);
 
             issues.addAll(Arrays.asList(pagedIssues.getIssues()));
 
@@ -96,13 +106,12 @@ public class JiraSoftwareServerRestClient {
     }
 
     public Sprint getActiveSprint(Long board) {
-        String sprintsPath = "/rest/agile/1.0/board/{boardId}/sprint";
-        String requestPath = sprintsPath.replace("{boardId}", board.toString());
+        String requestPath = PATH_BOARDSPRINTS.replace(PLACEHOLDER_BOARDID, board.toString());
         Integer startElementIndex = 0;
         Boolean sprintsToLoad = true;
 
         while (sprintsToLoad) {
-            QueryParam startElement = new QueryParam("start", startElementIndex);
+            QueryParam startElement = new QueryParam(QUERYPARAM_START, startElementIndex);
             PagedEntities<Sprint> pagedSprints = restClientAtlassian.getPagedEntities(new ParameterizedTypeReference<PagedEntities<Sprint>>() {
             }, requestPath, startElement);
 
@@ -120,11 +129,7 @@ public class JiraSoftwareServerRestClient {
     }
 
     public Integer getSprintIssuesCount(Long boardId, Long sprintId) {
-        String issuesPath = "/rest/agile/1.0/board/{boardId}/sprint/{sprintId}/issue";
-        String requestPath = issuesPath.replace("{boardId}", boardId.toString()).replace("{sprintId}", sprintId.toString());
-        LinkedList<Issue> issues = new LinkedList<>();
-        Integer startElementIndex = 0;
-        Boolean issuesToLoad = true;
+        String requestPath = PATH_SPRINTISSUES.replace(PLACEHOLDER_BOARDID, boardId.toString()).replace(PLACEHOLDER_SPRINTID, sprintId.toString());
 
         PagedEntities<Issue> pagedIssues = restClientAtlassian.getPagedEntities(new ParameterizedTypeReference<PagedEntities<Issue>>() {
         }, requestPath);
@@ -133,14 +138,13 @@ public class JiraSoftwareServerRestClient {
     }
 
     public Collection<Issue> getSprintIssues(Long boardId, Long sprintId, QueryParam additionalParameter) {
-        String issuesPath = "/rest/agile/1.0/board/{boardId}/sprint/{sprintId}/issue";
-        String requestPath = issuesPath.replace("{boardId}", boardId.toString()).replace("{sprintId}", sprintId.toString());
+        String requestPath = JiraSoftwareServerRestClient.PATH_SPRINTISSUES.replace(PLACEHOLDER_BOARDID, boardId.toString()).replace(PLACEHOLDER_SPRINTID, sprintId.toString());
         LinkedList<Issue> issues = new LinkedList<>();
         Integer startElementIndex = 0;
         Boolean issuesToLoad = true;
 
         while (issuesToLoad) {
-            QueryParam startElement = new QueryParam("start", startElementIndex);
+            QueryParam startElement = new QueryParam(QUERYPARAM_START, startElementIndex);
 
             PagedEntities<Issue> pagedIssues = null;
             if (additionalParameter != null) {
@@ -169,46 +173,34 @@ public class JiraSoftwareServerRestClient {
     }
 
     public Collection<RapidView> getRapidViewsGreenhopper() {
-        String rapidviewsPath = "/rest/greenhopper/1.0/rapidview";
+        RapidViews rapidViewsResponse = restClientAtlassian.getEntity(RapidViews.class, PATH_RAPIDVIEWS);
 
-        RapidViews rapidViewsResponse = restClientAtlassian.getEntity(RapidViews.class, rapidviewsPath);
-        List<RapidView> rapidViews = Arrays.stream(rapidViewsResponse.getViews())
+        return Arrays.stream(rapidViewsResponse.getViews())
                 .filter(rapidView -> rapidView.getSprintSupportEnabled())
                 .collect(Collectors.toList());
-
-        return rapidViews;
     }
 
     public at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.greenhopper.Sprint getActiveSprintGreenhopper(Long rapidviewId) {
-        String sprintsPath = "/rest/greenhopper/1.0/sprintquery/{rapidViewId}";
-        String sprintsRequestPath = sprintsPath.replace("{rapidViewId}", rapidviewId.toString());
+        String sprintsRequestPath = JiraSoftwareServerRestClient.PATH_SPRINTQUERY.replace("{rapidViewId}", rapidviewId.toString());
 
         Sprints sprintsResponse = restClientAtlassian.getEntity(Sprints.class, sprintsRequestPath);
         List<at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.greenhopper.Sprint> sprints = Arrays.stream(sprintsResponse.getSprints())
-                .filter(sprint -> sprint.getState().toLowerCase().equals("active"))
+                .filter(sprint -> sprint.getState().equalsIgnoreCase("active"))
                 .collect(Collectors.toList());
 
-        return sprints.size() > 0 ? sprints.get(0) : null;
+        return !sprints.isEmpty() ? sprints.get(0) : null;
     }
 
     public SprintReport getSprintReportGreenhopper(Long rapidviewId, Long sprintId) {
-        String sprintReportPath = "/rest/greenhopper/1.0/rapid/charts/sprintreport";
-
         QueryParam rapidViewIdQueryParam = new QueryParam("rapidViewId", rapidviewId);
         QueryParam sprintIdQueryParam = new QueryParam("sprintId", sprintId);
 
-        SprintReport sprintReport = restClientAtlassian.getEntity(SprintReport.class, sprintReportPath, rapidViewIdQueryParam, sprintIdQueryParam);
-
-        return sprintReport;
+        return restClientAtlassian.getEntity(SprintReport.class, PATH_SPRINTREPORT, rapidViewIdQueryParam, sprintIdQueryParam);
     }
 
     public VelocityReport getVelocityReportGreenhopper(Long rapidviewId) {
-        String velocityReportPath = "/rest/greenhopper/1.0/rapid/charts/velocity";
-
         QueryParam rapidViewIdQueryParam = new QueryParam("rapidViewId", rapidviewId);
 
-        VelocityReport velocityReport = restClientAtlassian.getEntity(VelocityReport.class, velocityReportPath, rapidViewIdQueryParam);
-
-        return velocityReport;
+        return restClientAtlassian.getEntity(VelocityReport.class, PATH_VELOCITYREPORT, rapidViewIdQueryParam);
     }
 }

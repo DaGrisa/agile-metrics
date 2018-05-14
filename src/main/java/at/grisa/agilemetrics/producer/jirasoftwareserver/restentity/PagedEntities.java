@@ -10,6 +10,7 @@ public class PagedEntities<T> {
     private Issue[] issues;
 
     public PagedEntities() {
+        // default constructor
     }
 
     public Boolean getLast() {

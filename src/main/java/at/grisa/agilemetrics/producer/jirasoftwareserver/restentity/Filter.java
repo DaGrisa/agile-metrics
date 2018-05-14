@@ -8,6 +8,7 @@ public class Filter {
     private String jql;
 
     public Filter() {
+        // default constructor
     }
 
     public Long getId() {

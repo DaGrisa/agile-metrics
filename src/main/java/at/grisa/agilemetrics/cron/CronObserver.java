@@ -13,7 +13,7 @@ import java.util.LinkedList;
 
 @Component
 public class CronObserver {
-    private final static Logger log = LogManager.getLogger(CronObserver.class);
+    private static final Logger log = LogManager.getLogger(CronObserver.class);
     private LinkedList<IConsumer> consumers;
     private LinkedList<IProducer> producers;
 

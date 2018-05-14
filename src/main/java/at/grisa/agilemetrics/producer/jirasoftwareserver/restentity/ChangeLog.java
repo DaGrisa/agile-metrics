@@ -10,6 +10,7 @@ public class ChangeLog {
     private History[] histories;
 
     public ChangeLog() {
+        // default constructor
     }
 
     public Integer getStartAt() {

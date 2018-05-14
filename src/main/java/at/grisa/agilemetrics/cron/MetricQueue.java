@@ -16,7 +16,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 @Component
 public class MetricQueue {
-    private final static Logger log = LogManager.getLogger(MetricQueue.class);
+    private static final Logger log = LogManager.getLogger(MetricQueue.class);
 
     public static final String QUEUE_DIR = "queuedFiles";
 
@@ -43,7 +43,7 @@ public class MetricQueue {
     public void enqueueMetric(Metric metric) {
         log.debug("enqueuing metric " + metric);
 
-        String filepath = QUEUE_DIR + "/" + System.currentTimeMillis() + "_" + Math.random() * 1000 + ".json";
+        String filepath = QUEUE_DIR + File.separator + System.currentTimeMillis() + "_" + Math.random() * 1000 + ".json";
 
         try {
             mapper.writeValue(new File(filepath), metric);

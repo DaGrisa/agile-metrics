@@ -8,6 +8,7 @@ public class User {
     private String emailAddress;
 
     public User() {
+        // default constructor
     }
 
     public String getName() {

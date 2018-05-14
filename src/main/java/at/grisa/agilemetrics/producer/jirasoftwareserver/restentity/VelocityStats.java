@@ -6,6 +6,7 @@ public class VelocityStats {
     private Value completed;
 
     public VelocityStats() {
+        // default constructor
     }
 
     public Long getSprintId() {

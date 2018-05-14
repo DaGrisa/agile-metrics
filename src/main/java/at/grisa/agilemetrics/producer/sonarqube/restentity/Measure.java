@@ -8,6 +8,7 @@ public class Measure {
     private Double value;
 
     public Measure() {
+        // default constructor
     }
 
     public String getMetric() {

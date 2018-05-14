@@ -9,6 +9,7 @@ public class RapidView {
     private Boolean sprintSupportEnabled;
 
     public RapidView() {
+        // default constructor
     }
 
     public Long getId() {

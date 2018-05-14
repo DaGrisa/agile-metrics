@@ -9,6 +9,7 @@ public class Project {
     private String name;
 
     public Project() {
+        // default constructor
     }
 
     public String getKey() {

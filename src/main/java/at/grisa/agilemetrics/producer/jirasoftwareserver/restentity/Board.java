@@ -9,6 +9,7 @@ public class Board {
     private String type;
 
     public Board() {
+        // default constructor
     }
 
     public Long getId() {

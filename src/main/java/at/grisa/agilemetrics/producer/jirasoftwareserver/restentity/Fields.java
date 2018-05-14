@@ -15,6 +15,7 @@ public class Fields {
     private String[] labels;
 
     public Fields() {
+        // default constructor
     }
 
     public Status getStatus() {

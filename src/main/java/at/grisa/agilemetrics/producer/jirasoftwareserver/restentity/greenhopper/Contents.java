@@ -9,6 +9,7 @@ public class Contents {
     private Value issuesNotCompletedEstimateSum;
 
     public Contents() {
+        // default constructor
     }
 
     public Value getCompletedIssuesEstimateSum() {

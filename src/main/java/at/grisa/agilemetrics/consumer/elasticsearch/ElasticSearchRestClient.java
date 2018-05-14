@@ -25,7 +25,7 @@ import java.util.Collection;
 @Component
 @Lazy
 public class ElasticSearchRestClient {
-    private final static org.apache.logging.log4j.Logger log = LogManager.getLogger(SonarQubeProducer.class.getName());
+    private static final org.apache.logging.log4j.Logger log = LogManager.getLogger(SonarQubeProducer.class.getName());
 
     @Autowired
     private MetricErrorHandler metricErrorHandler;
@@ -33,8 +33,8 @@ public class ElasticSearchRestClient {
     private final String hostUrl;
     private final String indexName;
     private final String typeName;
-    private final String INDEXNAME_DEFAULT = "agilemetrics";
-    private final String TYPENAME_DEFAULT = "metric";
+    private static final String INDEXNAME_DEFAULT = "agilemetrics";
+    private static final String TYPENAME_DEFAULT = "metric";
 
     @Autowired
     public ElasticSearchRestClient(CredentialManager credentialManager, PropertyManager propertyManager) {

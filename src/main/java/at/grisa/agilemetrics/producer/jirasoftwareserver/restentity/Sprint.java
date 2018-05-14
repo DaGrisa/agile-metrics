@@ -11,6 +11,7 @@ public class Sprint {
     private Integer sequence;
 
     public Sprint() {
+        // default constructor
     }
 
     public Long getId() {

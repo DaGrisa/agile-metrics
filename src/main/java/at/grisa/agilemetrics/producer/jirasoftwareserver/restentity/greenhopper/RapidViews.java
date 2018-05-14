@@ -4,6 +4,7 @@ public class RapidViews {
     private RapidView[] views;
 
     public RapidViews() {
+        // default constructor
     }
 
     public RapidView[] getViews() {

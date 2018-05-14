@@ -27,6 +27,7 @@ public class BitBucketServerProducer implements IProducer {
     private BitBucketServerRestClient bitBucketServerRestClient;
 
     public BitBucketServerProducer() {
+        // default constructor
     }
 
     @Override
@@ -84,18 +85,6 @@ public class BitBucketServerProducer implements IProducer {
             Metric commitsPerRepositoryMetric = new Metric(commitsPerRepositoryValue.getValue().doubleValue(), "Commits per Repository", commitsPerRepositoryMeta);
             metricQueue.enqueueMetric(commitsPerRepositoryMetric);
         }
-
-    }
-
-    private void collectDailyChangedLines(MetricQueue metricQueue) {
-
-    }
-
-    private void collectDailyNewPullRequests(MetricQueue metricQueue) {
-
-    }
-
-    private void collectDailyActivePullRequests(MetricQueue metricQueue) {
 
     }
 }

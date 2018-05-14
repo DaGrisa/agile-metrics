@@ -43,13 +43,11 @@ public class RestClient {
             builder.queryParam(queryParam.name, queryParam.value);
         }
 
-        T response = restTemplate.exchange(builder.build().encode().toUri(),
+        return restTemplate.exchange(builder.build().encode().toUri(),
                 HttpMethod.GET,
                 null,
                 clazz
         ).getBody();
-
-        return response;
     }
 
     public <T> T[] mergeArrays(T[] entities, T[] responseEntities, Class<T> clazz) {

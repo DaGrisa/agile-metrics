@@ -4,6 +4,7 @@ public class ComponentMeasures {
     private Component component;
 
     public ComponentMeasures() {
+        // default constructor
     }
 
     public Component getComponent() {

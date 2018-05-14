@@ -13,7 +13,7 @@ import java.util.Collection;
 
 @Component
 public class MetricErrorHandler {
-    private final static Logger log = LogManager.getLogger(MetricQueue.class);
+    private static final Logger log = LogManager.getLogger(MetricQueue.class);
 
     public static final String ERROR_DIR = MetricQueue.QUEUE_DIR + File.separator + "error";
 
@@ -33,7 +33,7 @@ public class MetricErrorHandler {
     public void saveErrorMetric(Metric metric) {
         log.debug("saving error metric " + metric);
 
-        String filepath = ERROR_DIR + "/" + System.currentTimeMillis() + "_" + Math.random() * 1000 + ".json";
+        String filepath = ERROR_DIR + File.separator + System.currentTimeMillis() + "_" + Math.random() * 1000 + ".json";
 
         try {
             mapper.writeValue(new File(filepath), metric);

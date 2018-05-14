@@ -11,6 +11,8 @@ import java.util.stream.Collectors;
 
 @org.springframework.stereotype.Component
 public class SonarQubeRestClient {
+    public static final String PATH_COMPONENTS = "/api/projects/search";
+    public static final String PATH_MEASURES = "/api/measures/component";
     private final RestClient restClient;
 
     public SonarQubeRestClient(CredentialManager credentialManager) {
@@ -21,7 +23,6 @@ public class SonarQubeRestClient {
     }
 
     public Collection<Component> getComponents() {
-        String componentPath = "/api/projects/search";
         QueryParam qualifierQueryParam = new QueryParam("qualifiers", "TRK");
         Integer page = 1;
         Boolean nextPage = true;
@@ -29,7 +30,7 @@ public class SonarQubeRestClient {
 
         while (nextPage) {
             QueryParam pageQueryParam = new QueryParam("p", page);
-            ComponentSearch componentSearch = restClient.getEntity(ComponentSearch.class, componentPath, qualifierQueryParam, pageQueryParam);
+            ComponentSearch componentSearch = restClient.getEntity(ComponentSearch.class, PATH_COMPONENTS, qualifierQueryParam, pageQueryParam);
 
             results = restClient.mergeArrays(results, componentSearch.getComponents(), Component.class);
 
@@ -41,12 +42,11 @@ public class SonarQubeRestClient {
     }
 
     public Collection<Measure> getMeasures(String componentKey, Metric... metrics) {
-        String measuresPath = "/api/measures/component";
         QueryParam componentQueryParam = new QueryParam("component", componentKey);
         QueryParam metricsQueryParam = new QueryParam("metricKeys", Arrays.stream(metrics).map(Metric::toString).collect(Collectors.joining(",")));
 
         Collection<Measure> measures = null;
-        ComponentMeasures componentMeasures = restClient.getEntity(ComponentMeasures.class, measuresPath, componentQueryParam, metricsQueryParam);
+        ComponentMeasures componentMeasures = restClient.getEntity(ComponentMeasures.class, PATH_MEASURES, componentQueryParam, metricsQueryParam);
 
         if (componentMeasures.getComponent() != null) {
             measures = Arrays.asList(componentMeasures.getComponent().getMeasures());

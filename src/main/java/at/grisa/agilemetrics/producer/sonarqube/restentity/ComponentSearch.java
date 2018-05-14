@@ -5,6 +5,7 @@ public class ComponentSearch {
     private Component[] components;
 
     public ComponentSearch() {
+        // default constructor
     }
 
     public Paging getPaging() {

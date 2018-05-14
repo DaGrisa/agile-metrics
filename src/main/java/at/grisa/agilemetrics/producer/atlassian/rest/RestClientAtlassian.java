@@ -17,6 +17,7 @@ public class RestClientAtlassian extends RestClient {
         super(hostUrl, user, password);
     }
 
+    @Override
     public <T> T getEntity(Class<T> clazz, String restPath, QueryParam... queryParams) {
         String restUrl = this.getHostUrl() + restPath;
 
@@ -29,13 +30,11 @@ public class RestClientAtlassian extends RestClient {
             builder.queryParam(queryParam.name, queryParam.value);
         }
 
-        T response = restTemplate.exchange(builder.build().encode().toUri(),
+        return restTemplate.exchange(builder.build().encode().toUri(),
                 HttpMethod.GET,
                 null,
                 clazz
         ).getBody();
-
-        return response;
     }
 
     public <T> T getPagedEntities(ParameterizedTypeReference<T> responseType, String restPath,
@@ -51,13 +50,11 @@ public class RestClientAtlassian extends RestClient {
             builder.queryParam(queryParam.name, queryParam.value);
         }
 
-        T response = restTemplate.exchange(builder.build().encode().toUri(),
+        return restTemplate.exchange(builder.build().encode().toUri(),
                 HttpMethod.GET,
                 null,
                 responseType
         ).getBody();
-
-        return response;
     }
 
     public <T> T[] getAllEntities(Class<T> clazz, ParameterizedTypeReference<PagedEntities<T>> responseType, String restPath,

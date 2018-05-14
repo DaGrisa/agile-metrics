@@ -7,6 +7,7 @@ public class SprintReport {
     private Contents contents;
 
     public SprintReport() {
+        // default constructor
     }
 
     public Contents getContents() {

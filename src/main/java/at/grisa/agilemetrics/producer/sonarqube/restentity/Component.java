@@ -15,6 +15,7 @@ public class Component {
     private Measure[] measures;
 
     public Component() {
+        // default constructor
     }
 
     public String getOrganization() {

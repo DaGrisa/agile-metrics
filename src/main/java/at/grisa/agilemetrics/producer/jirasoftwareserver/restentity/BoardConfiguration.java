@@ -7,6 +7,7 @@ public class BoardConfiguration {
     private Filter filter;
 
     public BoardConfiguration() {
+        // default constructor
     }
 
     public Filter getFilter() {

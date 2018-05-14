@@ -7,6 +7,7 @@ public class StatusCategory {
     private String name;
 
     public StatusCategory() {
+        // default constructor
     }
 
     public String getName() {

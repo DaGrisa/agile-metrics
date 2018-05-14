@@ -6,6 +6,7 @@ public class Paging {
     private Integer total;
 
     public Paging() {
+        // default constructor
     }
 
     public Integer getPageIndex() {

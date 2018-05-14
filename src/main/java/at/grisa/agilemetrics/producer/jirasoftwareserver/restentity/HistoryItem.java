@@ -14,6 +14,7 @@ public class HistoryItem {
     private ZonedDateTime created;
 
     public HistoryItem() {
+        // default constructor
     }
 
     public String getField() {

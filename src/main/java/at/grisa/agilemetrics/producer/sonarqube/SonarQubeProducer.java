@@ -18,7 +18,7 @@ import java.util.Map;
 
 @org.springframework.stereotype.Component
 public class SonarQubeProducer implements IProducer {
-    private final static Logger log = LogManager.getLogger(SonarQubeProducer.class.getName());
+    private static final Logger log = LogManager.getLogger(SonarQubeProducer.class.getName());
 
     @Autowired
     private SonarQubeRestClient sonarQubeRestClient;

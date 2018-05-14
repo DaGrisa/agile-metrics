@@ -12,6 +12,7 @@ public class History {
     private HistoryItem[] items;
 
     public History() {
+        // default constructor
     }
 
     public ZonedDateTime getCreated() {

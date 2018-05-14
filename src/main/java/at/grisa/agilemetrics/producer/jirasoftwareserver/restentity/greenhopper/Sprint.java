@@ -9,6 +9,7 @@ public class Sprint {
     private String state;
 
     public Sprint() {
+        // default constructor
     }
 
     public Long getId() {

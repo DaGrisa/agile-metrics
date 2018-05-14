@@ -10,6 +10,7 @@ public class Issue {
     private ChangeLog changelog;
 
     public Issue() {
+        // default constructor
     }
 
     public Long getId() {

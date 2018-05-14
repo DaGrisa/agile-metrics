@@ -19,6 +19,12 @@ import java.util.LinkedList;
 public class BitBucketServerRestClient {
     private final RestClientAtlassian restClientAtlassian;
 
+    private static final String PROJECTKEY_PLACEHOLDER = "{projectKey}";
+
+    private static final String PROJECTS_PATH = "/rest/api/1.0/projects";
+    private static final String REPOS_PATH = "/rest/api/1.0/projects/{projectKey}/repos";
+    private static final String COMMITS_PATH = "/rest/api/1.0/projects/{projectKey}/repos/{repositorySlug}/commits";
+
     public BitBucketServerRestClient(CredentialManager credentialManager) {
         String hostUrl = credentialManager.getBitbucketserverBaseUrl();
         String user = credentialManager.getBitbucketserverUsername();
@@ -28,28 +34,27 @@ public class BitBucketServerRestClient {
     }
 
     public Collection<Project> getProjects() {
-        String projectsPath = "/rest/api/1.0/projects";
         return Arrays.asList(restClientAtlassian.getAllEntities(Project.class, new ParameterizedTypeReference<PagedEntities<Project>>() {
-        }, projectsPath));
+        }, PROJECTS_PATH));
     }
 
     public Collection<Repository> getRepositories(String projectKey) {
-        String reposPath = "/rest/api/1.0/projects/{projectKey}/repos";
-        String requestPath = reposPath.replace("{projectKey}", projectKey);
+
+        String requestPath = REPOS_PATH.replace(PROJECTKEY_PLACEHOLDER, projectKey);
         return Arrays.asList(restClientAtlassian.getAllEntities(Repository.class, new ParameterizedTypeReference<PagedEntities<Repository>>() {
         }, requestPath));
     }
 
     public Collection<Commit> getCommits(String projectKey, String repoSlug) {
-        String commitsPath = "/rest/api/1.0/projects/{projectKey}/repos/{repositorySlug}/commits";
-        String requestPath = commitsPath.replace("{projectKey}", projectKey).replace("{repositorySlug}", repoSlug);
+
+        String requestPath = COMMITS_PATH.replace(PROJECTKEY_PLACEHOLDER, projectKey).replace("{repositorySlug}", repoSlug);
         return Arrays.asList(restClientAtlassian.getAllEntities(Commit.class, new ParameterizedTypeReference<PagedEntities<Commit>>() {
         }, requestPath, new QueryParam("withCounts", true)));
     }
 
     public Collection<Commit> getCommits(String projectKey, String repoSlug, Date from) {
-        String commitsPath = "/rest/api/1.0/projects/{projectKey}/repos/{repositorySlug}/commits";
-        String requestPath = commitsPath.replace("{projectKey}", projectKey).replace("{repositorySlug}", repoSlug);
+
+        String requestPath = COMMITS_PATH.replace(PROJECTKEY_PLACEHOLDER, projectKey).replace("{repositorySlug}", repoSlug);
 
         LinkedList<Commit> commits = new LinkedList<>();
         Integer startElementIndex = 0;

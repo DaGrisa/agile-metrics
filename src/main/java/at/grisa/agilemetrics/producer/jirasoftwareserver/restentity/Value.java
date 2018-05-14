@@ -7,6 +7,7 @@ public class Value {
     private Integer value;
 
     public Value() {
+        // default constructor
     }
 
     public Integer getValue() {

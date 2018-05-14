@@ -30,6 +30,7 @@ public class CredentialManager {
     private String elasicsearchBaseUrl;
 
     public CredentialManager() {
+        // default constructor
     }
 
     public String getBitbucketserverBaseUrl() {
@@ -43,7 +44,7 @@ public class CredentialManager {
     }
 
     public boolean isBitbucketserverActive() {
-        return !(this.bitbucketserverBaseUrl == null) && !(this.bitbucketserverUsername == null) && !(this.bitbucketserverPassword == null);
+        return this.bitbucketserverBaseUrl != null && this.bitbucketserverUsername != null && this.bitbucketserverPassword != null;
     }
 
     public String getJirasoftwareBaseUrl() {
@@ -57,7 +58,7 @@ public class CredentialManager {
     }
 
     public boolean isJirasoftwareActive() {
-        return !(this.jirasoftwareBaseUrl == null) && !(this.jirasoftwareUsername == null) && !(this.jirasoftwarePassword == null);
+        return this.jirasoftwareBaseUrl != null && this.jirasoftwareUsername != null && this.jirasoftwarePassword != null;
     }
 
     public String getSonarqubeBaseUrl() {
@@ -71,7 +72,7 @@ public class CredentialManager {
     }
 
     public boolean isSonarqubeActive() {
-        return !(this.sonarqubeBaseUrl == null) && !(this.sonarqubeUsername == null) && !(this.sonarqubePassword == null);
+        return this.sonarqubeBaseUrl != null && this.sonarqubeUsername != null && this.sonarqubePassword != null;
     }
 
     public String getElasicsearchBaseUrl() {
@@ -79,6 +80,6 @@ public class CredentialManager {
     }
 
     public boolean isElasticsearchActive() {
-        return !(this.elasicsearchBaseUrl == null);
+        return this.elasicsearchBaseUrl != null;
     }
 }

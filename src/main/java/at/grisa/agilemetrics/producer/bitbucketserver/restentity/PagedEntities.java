@@ -6,6 +6,7 @@ public class PagedEntities<T> {
     private T[] values;
 
     public PagedEntities() {
+        // default constructor
     }
 
     public Boolean getIsLastPage() {

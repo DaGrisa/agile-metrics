@@ -7,6 +7,7 @@ public class BulkResponse {
     private Boolean errors;
 
     public BulkResponse() {
+        // default constructor
     }
 
     public Boolean getErrors() {
