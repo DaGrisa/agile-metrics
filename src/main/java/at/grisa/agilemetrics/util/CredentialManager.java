@@ -5,28 +5,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class CredentialManager {
-    @Value("${producer.bitbucketserver.baseUrl:@null}")
-    private String bitbucketserverBaseUrl;
-    @Value("${producer.bitbucketserver.username:@null}")
-    private String bitbucketserverUsername;
-    @Value("${producer.bitbucketserver.password:@null}")
-    private String bitbucketserverPassword;
-
-    @Value("${producer.jirasoftware.baseUrl:@null}")
-    private String jirasoftwareBaseUrl;
-    @Value("${producer.jirasoftware.username:@null}")
-    private String jirasoftwareUsername;
-    @Value("${producer.jirasoftware.password:@null}")
-    private String jirasoftwarePassword;
-
-    @Value("${producer.sonarqube.baseUrl:@null}")
-    private String sonarqubeBaseUrl;
-    @Value("${producer.sonarqube.username:@null}")
-    private String sonarqubeUsername;
-    @Value("${producer.sonarqube.password:@null}")
-    private String sonarqubePassword;
-
-    @Value("${consumer.elasicsearch.baseUrl:@null}")
+    @Value("${:@null}")
     private String elasicsearchBaseUrl;
 
     public CredentialManager() {

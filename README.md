@@ -13,4 +13,78 @@
 [![Sqale Index](https://sonarcloud.io/api/project_badges/measure?project=at.grisa.agile-metrics%3Aagile-metrics&metric=sqale_index)](https://sonarcloud.io/dashboard/index/at.grisa.agile-metrics%3Aagile-metrics)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=at.grisa.agile-metrics%3Aagile-metrics&metric=vulnerabilities)](https://sonarcloud.io/dashboard/index/at.grisa.agile-metrics%3Aagile-metrics)
 
+## Overview
+
+Agile Metrics is a collector for software development process KPI data.
+It collects measurements from [Producers](#producer), creates metrics and sends them to [Consumers](#consumer).
+
+[![Agile Metrics Overview](overview.png)]
+
+## <a href="producer"></a>Producer
+
+A producer is a data source that offers measurement data.
+
+### BitBucket Server
+
+#### Authentication Properties
+
+- `producer.bitbucketserver.baseUrl`
+- `producer.bitbucketserver.username`
+- `producer.bitbucketserver.password`
+
+#### Metrics
+
+- Daily Commits
+    - per Author
+    - per Project
+    - per Repository
+
+### JIRA Software Server
+
+#### Authentication Properties
+
+- `producer.jirasoftware.baseUrl`
+- `producer.jirasoftware.username`
+- `producer.jirasoftware.password`
+
+#### Metrics
+
+- Issue Volume
+- Cumulative Flow
+- Estimated Story Points
+    - Completed
+    - Not Completed
+- Lead Time
+- Bug Rate
+- Recidivism
+    - `producer.jirasoftware.workflow` needs to be defined (comma separated list)
+- Acceptance Criteria Volatility
+    - `producer.jirasoftware.acceptanceCriteriaFieldName` needs to be defined
+- Velocity
+- Labels
+
+### SonarQube
+
+#### Authentication Properties
+
+- `producer.sonarqube.baseUrl`
+- `producer.sonarqube.username`
+- `producer.sonarqube.password`
+
+#### Metrics
+
+All SonarQube metrics defined as comma separated list of keys in `producer.sonarqube.metrics`. A list of all Metrics can be found at: [SonarQube Documentation](https://docs.sonarqube.org/display/SONAR/Metric+Definitions).
+
+## <a href="consumer"></a>Consumer
+
+A consumer is a data sink that takes the metrics data to provide further processing, for example visualization.
+
+### ElasticSearch
+
+#### Authentication Properties
+
+- consumer.elasicsearch.baseUrl`
+
 ## Getting Started
+
+To get started set all the authentication properties of the systems you would like to use in the `application.properties` file.
