@@ -1,9 +1,9 @@
 package at.grisa.agilemetrics.consumer.elasticsearch;
 
 import at.grisa.agilemetrics.consumer.elasticsearch.restentity.BulkResponse;
+import at.grisa.agilemetrics.consumer.elasticsearch.restentity.ClusterInfo;
 import at.grisa.agilemetrics.cron.MetricErrorHandler;
 import at.grisa.agilemetrics.entity.Metric;
-import at.grisa.agilemetrics.producer.sonarqube.SonarQubeProducer;
 import at.grisa.agilemetrics.util.CredentialManager;
 import at.grisa.agilemetrics.util.PropertyManager;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -25,7 +25,7 @@ import java.util.Collection;
 @Component
 @Lazy
 public class ElasticSearchRestClient {
-    private static final org.apache.logging.log4j.Logger log = LogManager.getLogger(SonarQubeProducer.class.getName());
+    private static final org.apache.logging.log4j.Logger log = LogManager.getLogger(ElasticSearchRestClient.class);
 
     @Autowired
     private MetricErrorHandler metricErrorHandler;
@@ -41,6 +41,20 @@ public class ElasticSearchRestClient {
         this.hostUrl = credentialManager.getElasicsearchBaseUrl();
         this.indexName = propertyManager.getElasticSearchIndexName();
         this.typeName = propertyManager.getElasticSearchTypeName();
+    }
+
+    public boolean checkConnection() {
+        String restUrl = hostUrl;
+        RestTemplate restTemplate = new RestTemplate();
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(restUrl);
+
+        ClusterInfo clusterInfo = restTemplate.exchange(builder.build().encode().toUri(),
+                HttpMethod.GET,
+                null,
+                ClusterInfo.class
+        ).getBody();
+
+        return clusterInfo != null && !clusterInfo.isEmpty();
     }
 
     public void saveMetrics(Collection<Metric> metrics) {

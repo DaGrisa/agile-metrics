@@ -2,11 +2,10 @@ package at.grisa.agilemetrics.producer.bitbucketserver;
 
 import at.grisa.agilemetrics.producer.atlassian.rest.RestClientAtlassian;
 import at.grisa.agilemetrics.producer.atlassian.rest.entities.QueryParam;
-import at.grisa.agilemetrics.producer.bitbucketserver.restentity.Commit;
-import at.grisa.agilemetrics.producer.bitbucketserver.restentity.PagedEntities;
-import at.grisa.agilemetrics.producer.bitbucketserver.restentity.Project;
-import at.grisa.agilemetrics.producer.bitbucketserver.restentity.Repository;
+import at.grisa.agilemetrics.producer.bitbucketserver.restentity.*;
 import at.grisa.agilemetrics.util.CredentialManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 
@@ -17,10 +16,13 @@ import java.util.LinkedList;
 
 @Component
 public class BitBucketServerRestClient {
+    private static final Logger log = LogManager.getLogger(BitBucketServerRestClient.class);
+
     private final RestClientAtlassian restClientAtlassian;
 
     private static final String PROJECTKEY_PLACEHOLDER = "{projectKey}";
 
+    private static final String CHECK_PATH = "/rest/application-properties";
     private static final String PROJECTS_PATH = "/rest/api/1.0/projects";
     private static final String REPOS_PATH = "/rest/api/1.0/projects/{projectKey}/repos";
     private static final String COMMITS_PATH = "/rest/api/1.0/projects/{projectKey}/repos/{repositorySlug}/commits";
@@ -31,6 +33,12 @@ public class BitBucketServerRestClient {
         String password = credentialManager.getBitbucketserverPassword();
 
         this.restClientAtlassian = new RestClientAtlassian(hostUrl, user, password);
+    }
+
+    public boolean checkConnection() {
+        ApplicationProperties applicationProperties = restClientAtlassian.getEntity(ApplicationProperties.class, CHECK_PATH);
+        log.info("BitBucket connection check returns " + applicationProperties);
+        return applicationProperties != null && !applicationProperties.isEmpty();
     }
 
     public Collection<Project> getProjects() {

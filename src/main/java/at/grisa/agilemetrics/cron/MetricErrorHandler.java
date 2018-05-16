@@ -13,7 +13,7 @@ import java.util.Collection;
 
 @Component
 public class MetricErrorHandler {
-    private static final Logger log = LogManager.getLogger(MetricQueue.class);
+    private static final Logger log = LogManager.getLogger(MetricErrorHandler.class);
 
     public static final String ERROR_DIR = MetricQueue.QUEUE_DIR + File.separator + "error";
 

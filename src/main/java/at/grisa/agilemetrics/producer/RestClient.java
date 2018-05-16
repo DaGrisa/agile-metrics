@@ -66,4 +66,21 @@ public class RestClient {
 
         return result;
     }
+
+    public Integer postReturnStatusNoAuthorization(String restPath, QueryParam... queryParams) {
+        RestTemplate restTemplate = new RestTemplate();
+
+        String restUrl = this.hostUrl + restPath;
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(restUrl);
+
+        for (QueryParam queryParam : queryParams) {
+            builder.queryParam(queryParam.name, queryParam.value);
+        }
+
+        return restTemplate.exchange(builder.build().encode().toUri(),
+                HttpMethod.POST,
+                null,
+                String.class
+        ).getStatusCodeValue();
+    }
 }

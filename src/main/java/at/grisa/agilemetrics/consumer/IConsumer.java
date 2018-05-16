@@ -4,4 +4,6 @@ import at.grisa.agilemetrics.entity.Metric;
 
 public interface IConsumer {
     void consume(Metric metric);
+
+    boolean checkConnection();
 }

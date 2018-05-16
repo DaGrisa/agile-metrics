@@ -1,13 +1,14 @@
 package at.grisa.agilemetrics.producer.bitbucketserver;
 
 import at.grisa.agilemetrics.cron.MetricQueue;
-import at.grisa.agilemetrics.cron.TimeSpan;
 import at.grisa.agilemetrics.entity.Metric;
 import at.grisa.agilemetrics.producer.IProducer;
 import at.grisa.agilemetrics.producer.bitbucketserver.restentity.Commit;
 import at.grisa.agilemetrics.producer.bitbucketserver.restentity.Project;
 import at.grisa.agilemetrics.producer.bitbucketserver.restentity.Repository;
 import at.grisa.agilemetrics.util.CredentialManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,8 @@ import java.util.*;
 @Component
 @Lazy
 public class BitBucketServerProducer implements IProducer {
+    private static final Logger log = LogManager.getLogger(BitBucketServerProducer.class);
+
     @Autowired
     private CredentialManager credentialManager;
 
@@ -31,10 +34,17 @@ public class BitBucketServerProducer implements IProducer {
     }
 
     @Override
-    public void produce(TimeSpan timespan) {
-        if (timespan.equals(TimeSpan.DAILY)) {
+    public void produce() {
+        try {
             collectDailyCommitData();
+        } catch (Exception e) {
+            log.error("Error producing metric.", e);
         }
+    }
+
+    @Override
+    public boolean checkConnection() {
+        return bitBucketServerRestClient.checkConnection();
     }
 
     private void collectDailyCommitData() {

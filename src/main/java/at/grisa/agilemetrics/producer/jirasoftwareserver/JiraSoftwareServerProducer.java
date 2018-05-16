@@ -1,7 +1,6 @@
 package at.grisa.agilemetrics.producer.jirasoftwareserver;
 
 import at.grisa.agilemetrics.cron.MetricQueue;
-import at.grisa.agilemetrics.cron.TimeSpan;
 import at.grisa.agilemetrics.entity.Metric;
 import at.grisa.agilemetrics.persistence.IVelocityRepository;
 import at.grisa.agilemetrics.persistence.entity.Velocity;
@@ -11,9 +10,12 @@ import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.*;
 import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.greenhopper.RapidView;
 import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.greenhopper.SprintReport;
 import at.grisa.agilemetrics.util.PropertyManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.Method;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -21,6 +23,8 @@ import java.util.stream.Collectors;
 
 @Component
 public class JiraSoftwareServerProducer implements IProducer {
+    private static final Logger log = LogManager.getLogger(JiraSoftwareServerProducer.class);
+
     public static final String META_SPRINTNAME = "sprint";
     public static final String META_BOARDNAME = "board";
     public static final String META_RAPIDVIEWNAME = "rapidview";
@@ -42,20 +46,36 @@ public class JiraSoftwareServerProducer implements IProducer {
     private PropertyManager propertyManager;
 
     @Override
-    public void produce(TimeSpan timespan) {
-        switch (timespan) {
-            case DAILY:
-                produceIssueVolume();
-                produceCumulativeFlow();
-                produceEstimatedStoryPoints();
-                produceLeadTime();
-                produceBugRate();
-                produceRecidivism();
-                produceAcceptanceCriteriaVolatility();
-                produceVelocity();
-                produceIssueLabels();
-                break;
+    public void produce() {
+        ArrayList<Method> producingMethods = new ArrayList<>();
+        try {
+            producingMethods.add(JiraSoftwareServerProducer.class.getMethod("produceIssueVolume"));
+            producingMethods.add(JiraSoftwareServerProducer.class.getMethod("produceCumulativeFlow"));
+            producingMethods.add(JiraSoftwareServerProducer.class.getMethod("produceEstimatedStoryPoints"));
+            producingMethods.add(JiraSoftwareServerProducer.class.getMethod("produceLeadTime"));
+            producingMethods.add(JiraSoftwareServerProducer.class.getMethod("produceBugRate"));
+            producingMethods.add(JiraSoftwareServerProducer.class.getMethod("produceRecidivism"));
+            producingMethods.add(JiraSoftwareServerProducer.class.getMethod("produceAcceptanceCriteriaVolatility"));
+            producingMethods.add(JiraSoftwareServerProducer.class.getMethod("produceVelocity"));
+            producingMethods.add(JiraSoftwareServerProducer.class.getMethod("produceIssueLabels"));
+        } catch (NoSuchMethodException e) {
+            log.error("Error reflecting producer methods.", e);
         }
+
+        // failsafe producing
+        for (Method method : producingMethods) {
+            try {
+                method.invoke(this);
+            } catch (Exception e) {
+                log.error("Error in producing method " + method, e);
+            }
+        }
+
+    }
+
+    @Override
+    public boolean checkConnection() {
+        return jiraRestClient.checkConnection();
     }
 
     public void produceIssueVolume() {
@@ -259,11 +279,11 @@ public class JiraSoftwareServerProducer implements IProducer {
 
             for (Sprint sprint : velocityReport.getSprints()) {
                 if (sprint.getState().equalsIgnoreCase("closed") && !savedSprintNames.contains(sprint.getName())) {
-                        VelocityStats velocityStat = velocityReport.getVelocityStatEntries().get(sprint.getId().toString());
-                        velocityStat.setSprintId(sprint.getId());
+                    VelocityStats velocityStat = velocityReport.getVelocityStatEntries().get(sprint.getId().toString());
+                    velocityStat.setSprintId(sprint.getId());
 
-                        velocityStats.add(velocityStat);
-                        sprints.put(sprint.getId(), sprint);
+                    velocityStats.add(velocityStat);
+                    sprints.put(sprint.getId(), sprint);
                 }
             }
 

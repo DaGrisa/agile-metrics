@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class Initializer {
-    private static final Logger log = LogManager.getLogger(Application.class);
+    private static final Logger log = LogManager.getLogger(Initializer.class);
 
     @Autowired
     private CredentialManager credentialManager;
@@ -47,17 +47,17 @@ public class Initializer {
             cronObserver.registerConsumer(elasticSearchConsumer);
         }
 
-        if (credentialManager.isBitbucketserverActive()) {
+        if (credentialManager.isBitbucketserverActive() && bitBucketServerProducer.checkConnection()) {
             log.info("Bitbucket configuration detected, registering as producer.");
             cronObserver.registerProducer(bitBucketServerProducer);
         }
 
-        if (credentialManager.isJirasoftwareActive()) {
+        if (credentialManager.isJirasoftwareActive() && jiraSoftwareServerProducer.checkConnection()) {
             log.info("Jira Software configuration detected, registering as producer.");
             cronObserver.registerProducer(jiraSoftwareServerProducer);
         }
 
-        if (credentialManager.isSonarqubeActive()) {
+        if (credentialManager.isSonarqubeActive() && sonarQubeProducer.checkConnection()) {
             log.info("SonarQube configuration detected, registering as producer.");
             cronObserver.registerProducer(sonarQubeProducer);
         }

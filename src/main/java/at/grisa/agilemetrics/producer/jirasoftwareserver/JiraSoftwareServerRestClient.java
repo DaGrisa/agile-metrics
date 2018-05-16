@@ -8,6 +8,8 @@ import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.greenhopper.
 import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.greenhopper.SprintReport;
 import at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.greenhopper.Sprints;
 import at.grisa.agilemetrics.util.CredentialManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 
@@ -19,11 +21,14 @@ import java.util.stream.Collectors;
 
 @Component
 public class JiraSoftwareServerRestClient {
+    private static final Logger log = LogManager.getLogger(JiraSoftwareServerRestClient.class);
+
     public static final String QUERYPARAM_START = "start";
     public static final String PLACEHOLDER_BOARDID = "{boardId}";
     public static final String PLACEHOLDER_SPRINTID = "{sprintId}";
 
     private final RestClientAtlassian restClientAtlassian;
+    public static final String PATH_SERVERINFO = "/rest/api/2/serverInfo";
     public static final String PATH_BOARDS = "/rest/agile/1.0/board";
     public static final String PATH_BOARDCONFIG = "/rest/agile/1.0/board/{boardId}/configuration";
     public static final String PATH_BOARDFILTER = "/rest/api/2/filter/{filterId}";
@@ -42,6 +47,12 @@ public class JiraSoftwareServerRestClient {
         String password = credentialManager.getJirasoftwarePassword();
 
         this.restClientAtlassian = new RestClientAtlassian(hostUrl, user, password);
+    }
+
+    public boolean checkConnection() {
+        ServerInfo serverInfo = restClientAtlassian.getEntity(ServerInfo.class, PATH_SERVERINFO);
+        log.info("JIRA connection check returns " + serverInfo);
+        return serverInfo != null && !serverInfo.isEmpty();
     }
 
     public Collection<Board> getScrumBoards() {

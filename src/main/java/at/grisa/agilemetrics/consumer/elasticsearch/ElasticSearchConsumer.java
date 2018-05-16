@@ -30,6 +30,11 @@ public class ElasticSearchConsumer implements IConsumer {
         collectForBatch(metric);
     }
 
+    @Override
+    public boolean checkConnection() {
+        return restClient.checkConnection();
+    }
+
     private void collectForBatch(Metric metric) {
         this.metrics.add(metric);
         if (metrics.size() >= propertyManager.getElasticSearchBatchSize()) {

@@ -44,7 +44,13 @@ public class CronObserver {
         while (metric != null) {
             log.debug("Metric found, sending it to all consumers and then enqueue it.", metric);
             for (IConsumer consumer : consumers) {
-                consumer.consume(metric);
+                // failsafe consuming
+                try {
+                    consumer.consume(metric);
+                    log.debug("Metric send to consumer " + consumer, metric);
+                } catch (Exception e) {
+                    log.error("Error sending metric (" + metric + ") to consumer (" + consumer + ").", e);
+                }
             }
             metric = metricQueue.dequeueMetric();
         }
@@ -52,8 +58,19 @@ public class CronObserver {
 
     @Scheduled(cron = "${cron.expression.daily:0 10 0 * * ?}")
     public void activateProducerDaily() {
-        for (IProducer producer : producers) {
-            producer.produce(TimeSpan.DAILY);
+        producers.parallelStream().forEach(producer -> safeProduce(producer));
+    }
+
+    /**
+     * Failsafe producing
+     *
+     * @param producer
+     */
+    private void safeProduce(final IProducer producer) {
+        try {
+            producer.produce();
+        } catch (Exception e) {
+            log.error("Error producing metrics in producer " + producer, e);
         }
     }
 }
