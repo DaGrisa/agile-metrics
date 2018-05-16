@@ -90,9 +90,7 @@ public class JiraSoftwareServerRestClient {
 
     public Issue getIssue(Long issueId, QueryParam... queryParams) {
         String issueRequestPath = PATH_ISSUE.replace("{issueId}", issueId.toString());
-        Issue issue = restClientAtlassian.getEntity(Issue.class, issueRequestPath, queryParams);
-
-        return issue;
+        return restClientAtlassian.getEntity(Issue.class, issueRequestPath, queryParams);
     }
 
     public Collection<Issue> getIssuesByJQL(String jql) {

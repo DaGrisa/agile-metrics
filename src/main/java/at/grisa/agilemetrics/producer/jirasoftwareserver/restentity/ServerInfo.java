@@ -12,6 +12,7 @@ public class ServerInfo {
     private String serverTitle;
 
     public ServerInfo() {
+        // default constructor
     }
 
     public String getBaseUrl() {

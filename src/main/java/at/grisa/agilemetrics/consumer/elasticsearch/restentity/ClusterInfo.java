@@ -12,6 +12,7 @@ public class ClusterInfo {
     private String clusterUuid;
 
     public ClusterInfo() {
+        // default constructor
     }
 
     public String getName() {

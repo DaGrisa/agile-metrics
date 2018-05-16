@@ -7,6 +7,7 @@ public class ServerVersion {
     private String version;
 
     public ServerVersion() {
+        // default constructor
     }
 
     public String getVersion() {
