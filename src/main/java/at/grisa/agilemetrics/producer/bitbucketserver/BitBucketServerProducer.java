@@ -34,17 +34,22 @@ public class BitBucketServerProducer implements IProducer {
     }
 
     @Override
+    public boolean checkConnection() {
+        try {
+            return bitBucketServerRestClient.checkConnection();
+        } catch (Exception e) {
+            log.error("could not connect to BitBucket Server, check error message", e);
+            return false;
+        }
+    }
+
+    @Override
     public void produce() {
         try {
             collectDailyCommitData();
         } catch (Exception e) {
             log.error("Error producing metric.", e);
         }
-    }
-
-    @Override
-    public boolean checkConnection() {
-        return bitBucketServerRestClient.checkConnection();
     }
 
     private void collectDailyCommitData() {

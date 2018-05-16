@@ -42,7 +42,7 @@ public class Initializer {
     public void initApplication(ContextRefreshedEvent event) {
         log.info("Initializing application");
 
-        if (credentialManager.isElasticsearchActive()) {
+        if (credentialManager.isElasticsearchActive() && elasticSearchConsumer.checkConnection()) {
             log.info("Elasticsearch configuration detected, registering as consumer.");
             cronObserver.registerConsumer(elasticSearchConsumer);
         }

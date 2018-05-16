@@ -46,6 +46,16 @@ public class JiraSoftwareServerProducer implements IProducer {
     private PropertyManager propertyManager;
 
     @Override
+    public boolean checkConnection() {
+        try {
+            return jiraRestClient.checkConnection();
+        } catch (Exception e) {
+            log.error("could not connect to JIRA Software Server, check error message", e);
+            return false;
+        }
+    }
+
+    @Override
     public void produce() {
         ArrayList<Method> producingMethods = new ArrayList<>();
         try {
@@ -71,11 +81,6 @@ public class JiraSoftwareServerProducer implements IProducer {
             }
         }
 
-    }
-
-    @Override
-    public boolean checkConnection() {
-        return jiraRestClient.checkConnection();
     }
 
     public void produceIssueVolume() {

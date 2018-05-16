@@ -29,6 +29,16 @@ public class SonarQubeProducer implements IProducer {
     private PropertyManager propertyManager;
 
     @Override
+    public boolean checkConnection() {
+        try {
+            return sonarQubeRestClient.checkConnection();
+        } catch (Exception e) {
+            log.error("could not connect to SonarQube, check error message", e);
+            return false;
+        }
+    }
+
+    @Override
     public void produce() {
         Collection<Metric> metricsList = new LinkedList<>();
 
@@ -61,10 +71,5 @@ public class SonarQubeProducer implements IProducer {
             }
 
         }
-    }
-
-    @Override
-    public boolean checkConnection() {
-        return sonarQubeRestClient.checkConnection();
     }
 }

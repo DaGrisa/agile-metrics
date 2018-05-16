@@ -3,6 +3,8 @@ package at.grisa.agilemetrics.consumer.elasticsearch;
 import at.grisa.agilemetrics.consumer.IConsumer;
 import at.grisa.agilemetrics.entity.Metric;
 import at.grisa.agilemetrics.util.PropertyManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -14,6 +16,8 @@ import java.util.Collection;
 @Component
 @Lazy
 public class ElasticSearchConsumer implements IConsumer {
+    private static final Logger log = LogManager.getLogger(ElasticSearchConsumer.class);
+
     private ElasticSearchRestClient restClient;
     private Collection<Metric> metrics;
     private PropertyManager propertyManager;
@@ -26,13 +30,18 @@ public class ElasticSearchConsumer implements IConsumer {
     }
 
     @Override
-    public void consume(Metric metric) {
-        collectForBatch(metric);
+    public boolean checkConnection() {
+        try {
+            return restClient.checkConnection();
+        } catch (Exception e) {
+            log.error("could not connect to ElasticSearch, check error message", e);
+            return false;
+        }
     }
 
     @Override
-    public boolean checkConnection() {
-        return restClient.checkConnection();
+    public void consume(Metric metric) {
+        collectForBatch(metric);
     }
 
     private void collectForBatch(Metric metric) {
