@@ -9,11 +9,19 @@ import at.grisa.agilemetrics.util.PropertyManager;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
@@ -26,6 +34,7 @@ import java.util.Collection;
 @Lazy
 public class ElasticSearchRestClient {
     private static final org.apache.logging.log4j.Logger log = LogManager.getLogger(ElasticSearchRestClient.class);
+    private HttpComponentsClientHttpRequestFactory httpRequestFactory;
 
     @Autowired
     private MetricErrorHandler metricErrorHandler;
@@ -41,6 +50,41 @@ public class ElasticSearchRestClient {
         this.hostUrl = credentialManager.getElasicsearchBaseUrl();
         this.indexName = propertyManager.getElasticSearchIndexName();
         this.typeName = propertyManager.getElasticSearchTypeName();
+
+        if (credentialManager.isProxyAuthActive()) {
+            setHttpProxyAuth(credentialManager.getHttpProxyHost(), credentialManager.getHttpProxyPort(), credentialManager.getHttpProxyUser(), credentialManager.getHttpProxyPassword());
+        } else if (credentialManager.isProxyActive()) {
+            setHttpProxy(credentialManager.getHttpProxyHost(), credentialManager.getHttpProxyPort());
+        } else {
+            HttpClientBuilder clientBuilder = HttpClientBuilder.create();
+            HttpClient httpClient = clientBuilder.build();
+            httpRequestFactory = new HttpComponentsClientHttpRequestFactory();
+            httpRequestFactory.setHttpClient(httpClient);
+        }
+    }
+
+    public void setHttpProxy(String host, Integer port) {
+        HttpClientBuilder clientBuilder = HttpClientBuilder.create();
+        HttpHost myProxy = new HttpHost(host, port);
+        clientBuilder = HttpClientBuilder.create();
+        clientBuilder.setProxy(myProxy);
+        HttpClient httpClient = clientBuilder.build();
+        httpRequestFactory = new HttpComponentsClientHttpRequestFactory();
+        httpRequestFactory.setHttpClient(httpClient);
+    }
+
+    public void setHttpProxyAuth(String host, Integer port, String username, String password) {
+        HttpClientBuilder clientBuilder = HttpClientBuilder.create();
+        CredentialsProvider credsProvider = new BasicCredentialsProvider();
+        credsProvider.setCredentials(
+                new AuthScope(host, port),
+                new UsernamePasswordCredentials(username, password));
+        HttpHost myProxy = new HttpHost(host, port);
+        clientBuilder = HttpClientBuilder.create();
+        clientBuilder.setProxy(myProxy).setDefaultCredentialsProvider(credsProvider);
+        HttpClient httpClient = clientBuilder.build();
+        httpRequestFactory = new HttpComponentsClientHttpRequestFactory();
+        httpRequestFactory.setHttpClient(httpClient);
     }
 
     public boolean checkConnection() {

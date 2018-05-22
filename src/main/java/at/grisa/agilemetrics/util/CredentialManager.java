@@ -1,10 +1,23 @@
 package at.grisa.agilemetrics.util;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class CredentialManager {
+    private static final Logger log = LogManager.getLogger(CredentialManager.class);
+
+    @Value("${httpProxy.host:@null}")
+    private String httpProxyHost;
+    @Value("${httpProxy.port:@null}")
+    private String httpProxyPort;
+    @Value("${httpProxy.user:@null}")
+    private String httpProxyUser;
+    @Value("${httpProxy.password:@null}")
+    private String httpProxyPassword;
+
     @Value("${producer.bitbucketserver.baseUrl:@null}")
     private String bitbucketserverBaseUrl;
     @Value("${producer.bitbucketserver.username:@null}")
@@ -31,6 +44,36 @@ public class CredentialManager {
 
     public CredentialManager() {
         // default constructor
+    }
+
+    public String getHttpProxyHost() {
+        return httpProxyHost;
+    }
+
+    public Integer getHttpProxyPort() {
+        int portNr = -1;
+        try {
+            portNr = Integer.parseInt(httpProxyPort);
+        } catch (NumberFormatException e) {
+            log.error("Unable to parse http proxy port as integer.");
+        }
+        return portNr;
+    }
+
+    public String getHttpProxyUser() {
+        return httpProxyUser;
+    }
+
+    public String getHttpProxyPassword() {
+        return httpProxyPassword;
+    }
+
+    public boolean isProxyActive() {
+        return httpProxyHost != null && httpProxyPort != null;
+    }
+
+    public boolean isProxyAuthActive() {
+        return isProxyActive() && httpProxyUser != null && httpProxyPassword != null;
     }
 
     public String getBitbucketserverBaseUrl() {

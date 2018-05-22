@@ -4,7 +4,7 @@
     <groupId>at.grisa.agile-metrics</groupId>
     <artifactId>agile-metrics</artifactId>
     <packaging>jar</packaging>
-    <version>0.9-alpha</version>
+    <version>0.10-alpha</version>
     <name>agile-metrics</name>
 
     <parent>
@@ -19,7 +19,7 @@
     </properties>
 
     <dependencies>
-        <!-- Sprníng -->
+        <!-- Spríng -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
@@ -85,6 +85,11 @@
             <artifactId>junit</artifactId>
             <version>4.12</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.2</version>
         </dependency>
     </dependencies>
 

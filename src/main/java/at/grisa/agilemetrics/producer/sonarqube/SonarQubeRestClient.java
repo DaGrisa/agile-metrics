@@ -25,6 +25,13 @@ public class SonarQubeRestClient {
         String user = credentialManager.getSonarqubeUsername();
         String password = credentialManager.getSonarqubePassword();
         restClient = new RestClient(host, user, password);
+
+        // set proxy if configured
+        if (credentialManager.isProxyAuthActive()) {
+            restClient.setHttpProxyAuth(credentialManager.getHttpProxyHost(), credentialManager.getHttpProxyPort(), credentialManager.getHttpProxyUser(), credentialManager.getHttpProxyPassword());
+        } else if (credentialManager.isProxyActive()) {
+            restClient.setHttpProxy(credentialManager.getHttpProxyHost(), credentialManager.getHttpProxyPort());
+        }
     }
 
     public boolean checkConnection() {

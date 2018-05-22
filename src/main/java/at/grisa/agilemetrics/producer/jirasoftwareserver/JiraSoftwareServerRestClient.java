@@ -47,6 +47,13 @@ public class JiraSoftwareServerRestClient {
         String password = credentialManager.getJirasoftwarePassword();
 
         this.restClientAtlassian = new RestClientAtlassian(hostUrl, user, password);
+
+        // set proxy if configured
+        if (credentialManager.isProxyAuthActive()) {
+            restClientAtlassian.setHttpProxyAuth(credentialManager.getHttpProxyHost(), credentialManager.getHttpProxyPort(), credentialManager.getHttpProxyUser(), credentialManager.getHttpProxyPassword());
+        } else if (credentialManager.isProxyActive()) {
+            restClientAtlassian.setHttpProxy(credentialManager.getHttpProxyHost(), credentialManager.getHttpProxyPort());
+        }
     }
 
     public boolean checkConnection() {
