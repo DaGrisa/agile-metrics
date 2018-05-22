@@ -87,12 +87,16 @@ public class JiraSoftwareServerProducer implements IProducer {
         for (Board scrumBoard : jiraRestClient.getScrumBoards()) {
             Sprint activeSprint = jiraRestClient.getActiveSprint(scrumBoard.getId());
 
-            Integer issueVolumeValue = jiraRestClient.getSprintIssuesCount(scrumBoard.getId(), activeSprint.getId());
-            HashMap<String, String> issueVolumeMeta = new HashMap<>();
-            issueVolumeMeta.put(META_SPRINTNAME, activeSprint.getName());
-            issueVolumeMeta.put(META_BOARDNAME, scrumBoard.getName());
-            Metric issueVolume = new Metric(issueVolumeValue.doubleValue(), "Issue Volume", issueVolumeMeta);
-            metricQueue.enqueueMetric(issueVolume);
+            if (activeSprint != null) {
+                Integer issueVolumeValue = jiraRestClient.getSprintIssuesCount(scrumBoard.getId(), activeSprint.getId());
+                HashMap<String, String> issueVolumeMeta = new HashMap<>();
+                issueVolumeMeta.put(META_SPRINTNAME, activeSprint.getName());
+                issueVolumeMeta.put(META_BOARDNAME, scrumBoard.getName());
+                Metric issueVolume = new Metric(issueVolumeValue.doubleValue(), "Issue Volume", issueVolumeMeta);
+                metricQueue.enqueueMetric(issueVolume);
+            } else {
+                log.info("no active sprint for scrum board " + scrumBoard.getName() + ", cancel producing issue volume");
+            }
         }
     }
 
@@ -103,20 +107,24 @@ public class JiraSoftwareServerProducer implements IProducer {
 
             // collect status date
             Sprint activeSprint = jiraRestClient.getActiveSprint(scrumBoard.getId());
-            for (Issue issue : jiraRestClient.getSprintIssuesStatus(scrumBoard.getId(), activeSprint.getId())) {
-                String issueStatus = issue.getFields().getStatus().getName();
-                Integer actualStatusCount = statusCount.get(issueStatus);
-                if (actualStatusCount == null) {
-                    actualStatusCount = 0;
-                }
-                statusCount.put(issueStatus, actualStatusCount + 1);
+            if (activeSprint != null) {
+                for (Issue issue : jiraRestClient.getSprintIssuesStatus(scrumBoard.getId(), activeSprint.getId())) {
+                    String issueStatus = issue.getFields().getStatus().getName();
+                    Integer actualStatusCount = statusCount.get(issueStatus);
+                    if (actualStatusCount == null) {
+                        actualStatusCount = 0;
+                    }
+                    statusCount.put(issueStatus, actualStatusCount + 1);
 
-                String issueSatusCategory = issue.getFields().getStatus().getStatusCategory().getName();
-                Integer actualStatusCategoryCount = statusCategoryCount.get(issueSatusCategory);
-                if (actualStatusCategoryCount == null) {
-                    actualStatusCategoryCount = 0;
+                    String issueSatusCategory = issue.getFields().getStatus().getStatusCategory().getName();
+                    Integer actualStatusCategoryCount = statusCategoryCount.get(issueSatusCategory);
+                    if (actualStatusCategoryCount == null) {
+                        actualStatusCategoryCount = 0;
+                    }
+                    statusCategoryCount.put(issueSatusCategory, actualStatusCategoryCount + 1);
                 }
-                statusCategoryCount.put(issueSatusCategory, actualStatusCategoryCount + 1);
+            } else {
+                log.info("no active sprint for scrum board " + scrumBoard.getName() + ", cancel producing cumulative flow");
             }
 
             // enqueue status count
@@ -144,21 +152,33 @@ public class JiraSoftwareServerProducer implements IProducer {
     public void produceEstimatedStoryPoints() {
         for (RapidView rapidView : jiraRestClient.getRapidViewsGreenhopper()) {
             at.grisa.agilemetrics.producer.jirasoftwareserver.restentity.greenhopper.Sprint activeSprint = jiraRestClient.getActiveSprintGreenhopper(rapidView.getId());
-            SprintReport sprintReport = jiraRestClient.getSprintReportGreenhopper(rapidView.getId(), activeSprint.getId());
+            if (activeSprint != null) {
+                SprintReport sprintReport = jiraRestClient.getSprintReportGreenhopper(rapidView.getId(), activeSprint.getId());
 
-            // enqueue completed issues estimate sum
-            Integer completedIssuesEstimateSum = sprintReport.getContents().getCompletedIssuesEstimateSum().getValue();
-            HashMap<String, String> metaCompletedIssues = new HashMap<>();
-            metaCompletedIssues.put(META_RAPIDVIEWNAME, rapidView.getName());
-            metaCompletedIssues.put(META_SPRINTNAME, activeSprint.getName());
-            metricQueue.enqueueMetric(new Metric(completedIssuesEstimateSum.doubleValue(), "Completed Issues Estimate Sum", metaCompletedIssues));
+                // enqueue completed issues estimate sum
+                Integer completedIssuesEstimateSum = sprintReport.getContents().getCompletedIssuesEstimateSum().getValue();
+                if (completedIssuesEstimateSum != null) {
+                    HashMap<String, String> metaCompletedIssues = new HashMap<>();
+                    metaCompletedIssues.put(META_RAPIDVIEWNAME, rapidView.getName());
+                    metaCompletedIssues.put(META_SPRINTNAME, activeSprint.getName());
+                    metricQueue.enqueueMetric(new Metric(completedIssuesEstimateSum.doubleValue(), "Completed Issues Estimate Sum", metaCompletedIssues));
+                } else {
+                    log.info("no completed issues story points on " + activeSprint.getName());
+                }
 
-            // enqueue not completed issues estimate sum
-            Integer notCompletedIssuesEstimateSum = sprintReport.getContents().getIssuesNotCompletedEstimateSum().getValue();
-            HashMap<String, String> metaNotCompletedIssues = new HashMap<>();
-            metaNotCompletedIssues.put(META_RAPIDVIEWNAME, rapidView.getName());
-            metaNotCompletedIssues.put(META_SPRINTNAME, activeSprint.getName());
-            metricQueue.enqueueMetric(new Metric(notCompletedIssuesEstimateSum.doubleValue(), "Not Completed Issues Estimate Sum", metaNotCompletedIssues));
+                // enqueue not completed issues estimate sum
+                Integer notCompletedIssuesEstimateSum = sprintReport.getContents().getIssuesNotCompletedEstimateSum().getValue();
+                if (notCompletedIssuesEstimateSum != null) {
+                    HashMap<String, String> metaNotCompletedIssues = new HashMap<>();
+                    metaNotCompletedIssues.put(META_RAPIDVIEWNAME, rapidView.getName());
+                    metaNotCompletedIssues.put(META_SPRINTNAME, activeSprint.getName());
+                    metricQueue.enqueueMetric(new Metric(notCompletedIssuesEstimateSum.doubleValue(), "Not Completed Issues Estimate Sum", metaNotCompletedIssues));
+                } else {
+                    log.info("no not completed issues story points on " + activeSprint.getName());
+                }
+            } else {
+                log.info("no active sprint for rapid view " + rapidView.getName() + ", cancel producing estimated story points");
+            }
         }
     }
 
@@ -169,16 +189,20 @@ public class JiraSoftwareServerProducer implements IProducer {
             Collection<Issue> issues = jiraRestClient.getIssuesByJQL(jql);
 
             for (Issue issue : issues) {
-                ZonedDateTime start = issue.getFields().getCreated();
-                ZonedDateTime end = issue.getFields().getResolutiondate();
+                ZonedDateTime created = issue.getFields().getCreated();
+                ZonedDateTime resolutionDate = issue.getFields().getResolutiondate();
 
-                Long daysToFinish = Duration.between(start, end).toDays();
+                if (created != null && resolutionDate != null) {
+                    Long daysToFinish = Duration.between(created, resolutionDate).toDays();
 
-                HashMap<String, String> meta = new HashMap<>();
-                meta.put(META_BOARDNAME, scrumBoard.getName());
-                meta.put(META_ISSUEKEY, issue.getKey());
+                    HashMap<String, String> meta = new HashMap<>();
+                    meta.put(META_BOARDNAME, scrumBoard.getName());
+                    meta.put(META_ISSUEKEY, issue.getKey());
 
-                metricQueue.enqueueMetric(new Metric(daysToFinish.doubleValue(), "Lead Time", meta));
+                    metricQueue.enqueueMetric(new Metric(daysToFinish.doubleValue(), "Lead Time", meta));
+                } else {
+                    log.error("created or resolution date empty on resolved issue " + issue.getKey() + ", created: " + created + ", resolution date: " + resolutionDate);
+                }
             }
         }
     }

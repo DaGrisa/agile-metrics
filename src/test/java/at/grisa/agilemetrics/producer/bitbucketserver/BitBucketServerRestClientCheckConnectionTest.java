@@ -41,7 +41,7 @@ public class BitBucketServerRestClientCheckConnectionTest {
         mockServerClient.when(
                 request()
                         .withMethod("GET")
-                        .withPath("/rest/application-properties")
+                        .withPath("/rest/api/1.0/application-properties")
         )
                 .respond(
                         response()

@@ -22,7 +22,7 @@ public class BitBucketServerRestClient {
 
     private static final String PROJECTKEY_PLACEHOLDER = "{projectKey}";
 
-    private static final String CHECK_PATH = "/rest/application-properties";
+    private static final String CHECK_PATH = "/rest/api/1.0/application-properties";
     private static final String PROJECTS_PATH = "/rest/api/1.0/projects";
     private static final String REPOS_PATH = "/rest/api/1.0/projects/{projectKey}/repos";
     private static final String COMMITS_PATH = "/rest/api/1.0/projects/{projectKey}/repos/{repositorySlug}/commits";
@@ -61,10 +61,19 @@ public class BitBucketServerRestClient {
     }
 
     public Collection<Commit> getCommits(String projectKey, String repoSlug) {
-
         String requestPath = COMMITS_PATH.replace(PROJECTKEY_PLACEHOLDER, projectKey).replace("{repositorySlug}", repoSlug);
-        return Arrays.asList(restClientAtlassian.getAllEntities(Commit.class, new ParameterizedTypeReference<PagedEntities<Commit>>() {
-        }, requestPath, new QueryParam("withCounts", true)));
+        try {
+            return Arrays.asList(restClientAtlassian.getAllEntities(Commit.class, new ParameterizedTypeReference<PagedEntities<Commit>>() {
+            }, requestPath, new QueryParam("withCounts", true)));
+        } catch (RuntimeException e) {
+            if (e.getCause().getMessage().contains("404")) {
+                log.info("No commits so far in project " + projectKey + " of repository " + repoSlug);
+                return null;
+            } else {
+                throw e;
+            }
+        }
+
     }
 
     public Collection<Commit> getCommits(String projectKey, String repoSlug, Date from) {
@@ -77,18 +86,32 @@ public class BitBucketServerRestClient {
 
         while (commitsToLoad) {
             QueryParam startElement = new QueryParam("start", startElementIndex);
-            PagedEntities<Commit> pagedCommits = restClientAtlassian.getPagedEntities(new ParameterizedTypeReference<PagedEntities<Commit>>() {
-            }, requestPath, startElement);
 
-            for (Commit commit : pagedCommits.getValues()) {
-                if (commit.getAuthorTimestamp().after(from)) {
-                    commits.add(commit);
+            PagedEntities<Commit> pagedCommits = null;
+            try {
+                pagedCommits = restClientAtlassian.getPagedEntities(new ParameterizedTypeReference<PagedEntities<Commit>>() {
+                }, requestPath, startElement);
+            } catch (RuntimeException e) {
+                if (e.getCause().getMessage().contains("404")) {
+                    log.info("No commits so far in project " + projectKey + " of repository " + repoSlug);
                 } else {
-                    commitsToLoad = false;
+                    throw e;
                 }
             }
 
-            startElementIndex = pagedCommits.getNextPageStart();
+            if (pagedCommits != null) {
+                for (Commit commit : pagedCommits.getValues()) {
+                    if (commit.getAuthorTimestamp().after(from)) {
+                        commits.add(commit);
+                    } else {
+                        commitsToLoad = false;
+                    }
+                }
+
+                startElementIndex = pagedCommits.getNextPageStart();
+            } else {
+                break;
+            }
         }
 
         return commits;

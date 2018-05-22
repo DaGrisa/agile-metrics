@@ -39,20 +39,24 @@ public class CronObserver {
 
     @Scheduled(fixedDelay = 5000)
     public void activateConsumer() {
-        log.debug("Checking metrics queue...");
-        Metric metric = metricQueue.dequeueMetric();
-        while (metric != null) {
-            log.debug("Metric found, sending it to all consumers and then enqueue it.", metric);
-            for (IConsumer consumer : consumers) {
-                // failsafe consuming
-                try {
-                    consumer.consume(metric);
-                    log.debug("Metric send to consumer " + consumer, metric);
-                } catch (Exception e) {
-                    log.error("Error sending metric (" + metric + ") to consumer (" + consumer + ").", e);
+        if (consumers.size() > 0) {
+            log.debug("Checking metrics queue...");
+            Metric metric = metricQueue.dequeueMetric();
+            while (metric != null) {
+                log.debug("Metric found, sending it to all consumers and then enqueue it.", metric);
+                for (IConsumer consumer : consumers) {
+                    // failsafe consuming
+                    try {
+                        consumer.consume(metric);
+                        log.debug("Metric send to consumer " + consumer, metric);
+                    } catch (Exception e) {
+                        log.error("Error sending metric (" + metric + ") to consumer (" + consumer + ").", e);
+                    }
                 }
+                metric = metricQueue.dequeueMetric();
             }
-            metric = metricQueue.dequeueMetric();
+        } else {
+            log.error("no consumers registered");
         }
     }
 
