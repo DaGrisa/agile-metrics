@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 public class SonarQubeRestClient {
     private static final Logger log = LogManager.getLogger(SonarQubeRestClient.class);
 
-    public static final String PATH_LOGIN = "/api/authenticaton/login";
+    public static final String PATH_LOGIN = "/api/authentication/login";
     public static final String PATH_COMPONENTS = "/api/projects/search";
     public static final String PATH_MEASURES = "/api/measures/component";
     private final RestClient restClient;
