@@ -47,9 +47,8 @@ public class RestClient {
     }
 
     public void setHttpProxy(String host, Integer port) {
-        HttpClientBuilder clientBuilder = HttpClientBuilder.create();
         HttpHost myProxy = new HttpHost(host, port);
-        clientBuilder = HttpClientBuilder.create();
+        HttpClientBuilder clientBuilder = HttpClientBuilder.create();
         clientBuilder.setProxy(myProxy);
         HttpClient httpClient = clientBuilder.build();
         httpRequestFactory = new HttpComponentsClientHttpRequestFactory();
@@ -57,13 +56,12 @@ public class RestClient {
     }
 
     public void setHttpProxyAuth(String host, Integer port, String username, String password) {
-        HttpClientBuilder clientBuilder = HttpClientBuilder.create();
         CredentialsProvider credsProvider = new BasicCredentialsProvider();
         credsProvider.setCredentials(
                 new AuthScope(host, port),
                 new UsernamePasswordCredentials(username, password));
         HttpHost myProxy = new HttpHost(host, port);
-        clientBuilder = HttpClientBuilder.create();
+        HttpClientBuilder clientBuilder = HttpClientBuilder.create();
         clientBuilder.setProxy(myProxy).setDefaultCredentialsProvider(credsProvider);
         HttpClient httpClient = clientBuilder.build();
         httpRequestFactory = new HttpComponentsClientHttpRequestFactory();

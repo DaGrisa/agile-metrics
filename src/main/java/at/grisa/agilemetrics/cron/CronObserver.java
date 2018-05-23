@@ -2,6 +2,8 @@ package at.grisa.agilemetrics.cron;
 
 import at.grisa.agilemetrics.consumer.IConsumer;
 import at.grisa.agilemetrics.entity.Metric;
+import at.grisa.agilemetrics.persistence.IStatisticRepository;
+import at.grisa.agilemetrics.persistence.entity.Statistic;
 import at.grisa.agilemetrics.producer.IProducer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -9,7 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.time.ZonedDateTime;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class CronObserver {
@@ -18,7 +23,10 @@ public class CronObserver {
     private LinkedList<IProducer> producers;
 
     @Autowired
-    MetricQueue metricQueue;
+    private MetricQueue metricQueue;
+
+    @Autowired
+    private IStatisticRepository statisticRepository;
 
     public CronObserver() {
         consumers = new LinkedList<>();
@@ -39,7 +47,7 @@ public class CronObserver {
 
     @Scheduled(fixedDelay = 5000)
     public void activateConsumer() {
-        if (consumers.size() > 0) {
+        if (!consumers.isEmpty()) {
             log.debug("Checking metrics queue...");
             Metric metric = metricQueue.dequeueMetric();
             while (metric != null) {
@@ -62,7 +70,9 @@ public class CronObserver {
 
     @Scheduled(cron = "${cron.expression.daily:0 10 0 * * ?}")
     public void activateProducerDaily() {
+        metricQueue.resetMetricsCounter();
         producers.parallelStream().forEach(producer -> safeProduce(producer));
+        statisticRepository.save(new Statistic(metricQueue.getMetricsCounter(), ZonedDateTime.now()));
     }
 
     /**
@@ -76,5 +86,13 @@ public class CronObserver {
         } catch (Exception e) {
             log.error("Error producing metrics in producer " + producer, e);
         }
+    }
+
+    public List<String> getConsumersAsString() {
+        return consumers.stream().map(IConsumer::toString).collect(Collectors.toList());
+    }
+
+    public List<String> getProducersAsString() {
+        return producers.stream().map(IProducer::toString).collect(Collectors.toList());
     }
 }

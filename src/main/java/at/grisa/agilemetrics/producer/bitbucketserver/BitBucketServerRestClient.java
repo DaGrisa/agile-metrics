@@ -8,11 +8,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.LinkedList;
+import java.util.*;
 
 @Component
 public class BitBucketServerRestClient {
@@ -65,10 +63,10 @@ public class BitBucketServerRestClient {
         try {
             return Arrays.asList(restClientAtlassian.getAllEntities(Commit.class, new ParameterizedTypeReference<PagedEntities<Commit>>() {
             }, requestPath, new QueryParam("withCounts", true)));
-        } catch (RuntimeException e) {
+        } catch (HttpClientErrorException e) {
             if (e.getCause().getMessage().contains("404")) {
                 log.info("No commits so far in project " + projectKey + " of repository " + repoSlug);
-                return null;
+                return new ArrayList<Commit>();
             } else {
                 throw e;
             }
@@ -87,17 +85,7 @@ public class BitBucketServerRestClient {
         while (commitsToLoad) {
             QueryParam startElement = new QueryParam("start", startElementIndex);
 
-            PagedEntities<Commit> pagedCommits = null;
-            try {
-                pagedCommits = restClientAtlassian.getPagedEntities(new ParameterizedTypeReference<PagedEntities<Commit>>() {
-                }, requestPath, startElement);
-            } catch (RuntimeException e) {
-                if (e.getCause().getMessage().contains("404")) {
-                    log.info("No commits so far in project " + projectKey + " of repository " + repoSlug);
-                } else {
-                    throw e;
-                }
-            }
+            PagedEntities<Commit> pagedCommits = getPagedCommits(projectKey, repoSlug, requestPath, startElement);
 
             if (pagedCommits != null) {
                 for (Commit commit : pagedCommits.getValues()) {
@@ -115,5 +103,20 @@ public class BitBucketServerRestClient {
         }
 
         return commits;
+    }
+
+    private PagedEntities<Commit> getPagedCommits(String projectKey, String repoSlug, String requestPath, QueryParam startElement) {
+        PagedEntities<Commit> pagedCommits = null;
+        try {
+            pagedCommits = restClientAtlassian.getPagedEntities(new ParameterizedTypeReference<PagedEntities<Commit>>() {
+            }, requestPath, startElement);
+        } catch (RuntimeException e) {
+            if (e.getCause().getMessage().contains("404")) {
+                log.info("No commits so far in project " + projectKey + " of repository " + repoSlug);
+            } else {
+                throw e;
+            }
+        }
+        return pagedCommits;
     }
 }

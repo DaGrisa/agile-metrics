@@ -108,44 +108,48 @@ public class JiraSoftwareServerProducer implements IProducer {
             // collect status date
             Sprint activeSprint = jiraRestClient.getActiveSprint(scrumBoard.getId());
             if (activeSprint != null) {
-                for (Issue issue : jiraRestClient.getSprintIssuesStatus(scrumBoard.getId(), activeSprint.getId())) {
-                    String issueStatus = issue.getFields().getStatus().getName();
-                    Integer actualStatusCount = statusCount.get(issueStatus);
-                    if (actualStatusCount == null) {
-                        actualStatusCount = 0;
-                    }
-                    statusCount.put(issueStatus, actualStatusCount + 1);
+                getStatus(scrumBoard, statusCount, statusCategoryCount, activeSprint);
 
-                    String issueSatusCategory = issue.getFields().getStatus().getStatusCategory().getName();
-                    Integer actualStatusCategoryCount = statusCategoryCount.get(issueSatusCategory);
-                    if (actualStatusCategoryCount == null) {
-                        actualStatusCategoryCount = 0;
-                    }
-                    statusCategoryCount.put(issueSatusCategory, actualStatusCategoryCount + 1);
+                // enqueue status count
+                for (Map.Entry<String, Integer> statusCountEntry : statusCount.entrySet()) {
+                    HashMap<String, String> meta = new HashMap<>();
+                    meta.put(META_STATUSKEY, statusCountEntry.getKey());
+                    meta.put(META_BOARDNAME, scrumBoard.getName());
+                    meta.put(META_SPRINTNAME, activeSprint.getName());
+                    Metric cumulativeFlow = new Metric(statusCountEntry.getValue().doubleValue(), "Cumulative Flow - Status", meta);
+                    metricQueue.enqueueMetric(cumulativeFlow);
+                }
+
+                // enqueue status category count
+                for (Map.Entry<String, Integer> statusCategoryCountEntry : statusCategoryCount.entrySet()) {
+                    HashMap<String, String> meta = new HashMap<>();
+                    meta.put(META_STATUSCATEGORYKEY, statusCategoryCountEntry.getKey());
+                    meta.put(META_BOARDNAME, scrumBoard.getName());
+                    meta.put(META_SPRINTNAME, activeSprint.getName());
+                    Metric cumulativeFlow = new Metric(statusCategoryCountEntry.getValue().doubleValue(), "Cumulative Flow - Status Category", meta);
+                    metricQueue.enqueueMetric(cumulativeFlow);
                 }
             } else {
                 log.info("no active sprint for scrum board " + scrumBoard.getName() + ", cancel producing cumulative flow");
             }
+        }
+    }
 
-            // enqueue status count
-            for (Map.Entry<String, Integer> statusCountEntry : statusCount.entrySet()) {
-                HashMap<String, String> meta = new HashMap<>();
-                meta.put(META_STATUSKEY, statusCountEntry.getKey());
-                meta.put(META_BOARDNAME, scrumBoard.getName());
-                meta.put(META_SPRINTNAME, activeSprint.getName());
-                Metric cumulativeFlow = new Metric(statusCountEntry.getValue().doubleValue(), "Cumulative Flow - Status", meta);
-                metricQueue.enqueueMetric(cumulativeFlow);
+    private void getStatus(Board scrumBoard, HashMap<String, Integer> statusCount, HashMap<String, Integer> statusCategoryCount, Sprint activeSprint) {
+        for (Issue issue : jiraRestClient.getSprintIssuesStatus(scrumBoard.getId(), activeSprint.getId())) {
+            String issueStatus = issue.getFields().getStatus().getName();
+            Integer actualStatusCount = statusCount.get(issueStatus);
+            if (actualStatusCount == null) {
+                actualStatusCount = 0;
             }
+            statusCount.put(issueStatus, actualStatusCount + 1);
 
-            // enqueue status category count
-            for (Map.Entry<String, Integer> statusCategoryCountEntry : statusCategoryCount.entrySet()) {
-                HashMap<String, String> meta = new HashMap<>();
-                meta.put(META_STATUSCATEGORYKEY, statusCategoryCountEntry.getKey());
-                meta.put(META_BOARDNAME, scrumBoard.getName());
-                meta.put(META_SPRINTNAME, activeSprint.getName());
-                Metric cumulativeFlow = new Metric(statusCategoryCountEntry.getValue().doubleValue(), "Cumulative Flow - Status Category", meta);
-                metricQueue.enqueueMetric(cumulativeFlow);
+            String issueSatusCategory = issue.getFields().getStatus().getStatusCategory().getName();
+            Integer actualStatusCategoryCount = statusCategoryCount.get(issueSatusCategory);
+            if (actualStatusCategoryCount == null) {
+                actualStatusCategoryCount = 0;
             }
+            statusCategoryCount.put(issueSatusCategory, actualStatusCategoryCount + 1);
         }
     }
 

@@ -63,7 +63,7 @@ public class RestClientAtlassian extends RestClient {
             ).getBody();
         } catch (HttpClientErrorException e) {
             log.error("GET request to resource " + restUrl + " failed");
-            throw new RuntimeException("Error retrieving paged entities", e);
+            throw e;
         }
     }
 

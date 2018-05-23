@@ -17,6 +17,7 @@ public class Velocity {
     private Integer completed;
 
     public Velocity() {
+        // default constructor
     }
 
     public Velocity(String team, String sprint, String goal, Integer estimated, Integer completed) {

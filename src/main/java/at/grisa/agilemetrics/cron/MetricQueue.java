@@ -18,6 +18,8 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 public class MetricQueue {
     private static final Logger log = LogManager.getLogger(MetricQueue.class);
 
+    private Integer metricsCounter;
+
     public static final String QUEUE_DIR = "queuedFiles";
 
     @Autowired
@@ -42,6 +44,7 @@ public class MetricQueue {
 
     public void enqueueMetric(Metric metric) {
         log.debug("enqueuing metric " + metric);
+        metricsCounter++;
 
         String filepath = QUEUE_DIR + File.separator + System.currentTimeMillis() + "_" + Math.random() * 1000 + ".json";
 
@@ -108,5 +111,13 @@ public class MetricQueue {
         } catch (IOException e) {
             log.error("unable to delete file " + nextMetricFile.getName(), e);
         }
+    }
+
+    public void resetMetricsCounter() {
+        metricsCounter = 0;
+    }
+
+    public Integer getMetricsCounter() {
+        return metricsCounter;
     }
 }
