@@ -257,7 +257,7 @@ public class JiraSoftwareServerProducer implements IProducer {
         Integer recidivismCount = 0;
         Integer lastStatusIndex = 0;
         for (HistoryItem item : statusChanges) {
-            Integer actualStatusIndex = workflow.indexOf(item.getToString());
+            Integer actualStatusIndex = workflow.indexOf(item.getToString().toLowerCase());
             if (actualStatusIndex < lastStatusIndex) {
                 recidivismCount++;
             }

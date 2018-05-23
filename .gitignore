@@ -2,7 +2,11 @@
 *.class
 
 # Log file
+logs/
 *.log
+
+# database files
+*.db
 
 # BlueJ files
 *.ctxt
