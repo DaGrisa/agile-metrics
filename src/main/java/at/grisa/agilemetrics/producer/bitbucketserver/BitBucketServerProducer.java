@@ -53,12 +53,6 @@ public class BitBucketServerProducer implements IProducer {
     }
 
     private void collectDailyCommitData() {
-        Date created = new Date();
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(created);
-        cal.add(Calendar.DATE, -1);
-        Date from = cal.getTime();
-
         HashMap<String, Integer> commitsPerProject = new HashMap<>();
         HashMap<String, Integer> commitsPerAuthor = new HashMap<>();
         HashMap<String, Integer> commitsPerRepository = new HashMap<>();
@@ -66,17 +60,45 @@ public class BitBucketServerProducer implements IProducer {
         // get all commits per project / repository / author
         Collection<Project> projects = bitBucketServerRestClient.getProjects();
         for (Project project : projects) {
-            Collection<Repository> repositories = bitBucketServerRestClient.getRepositories(project.getKey());
-            for (Repository repository : repositories) {
-                Collection<Commit> commits = bitBucketServerRestClient.getCommits(project.getKey(), repository.getSlug(), from);
-                for (Commit commit : commits) {
-                    commitsPerProject.put(project.getName(), commitsPerProject.get(project.getName()) + 1);
-                    commitsPerAuthor.put(commit.getAuthor().getName(), commitsPerAuthor.get(commit.getAuthor().getName()) + 1);
-                    commitsPerRepository.put(repository.getName(), commitsPerRepository.get(repository.getName()) + 1);
-                }
-            }
+            collectDailyCommitDataPerProject(commitsPerProject, commitsPerAuthor, commitsPerRepository, project);
         }
 
+        enqueueMetrics(commitsPerProject, commitsPerAuthor, commitsPerRepository);
+    }
+
+    private void collectDailyCommitDataPerProject(HashMap<String, Integer> commitsPerProject, HashMap<String, Integer> commitsPerAuthor, HashMap<String, Integer> commitsPerRepository, Project project) {
+        Date created = new Date();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(created);
+        cal.add(Calendar.DATE, -1);
+        Date from = cal.getTime();
+
+        Collection<Repository> repositories = bitBucketServerRestClient.getRepositories(project.getKey());
+        for (Repository repository : repositories) {
+            Collection<Commit> commits = bitBucketServerRestClient.getCommits(project.getKey(), repository.getSlug(), from);
+            for (Commit commit : commits) {
+                Integer commitsPerProjectCount = commitsPerProject.get(project.getName());
+                if (commitsPerProjectCount == null) {
+                    commitsPerProjectCount = 0;
+                }
+                commitsPerProject.put(project.getName(), commitsPerProjectCount + 1);
+
+                Integer commitsPerAuthorCount = commitsPerAuthor.get(commit.getAuthor().getName());
+                if (commitsPerAuthorCount == null) {
+                    commitsPerAuthorCount = 0;
+                }
+                commitsPerAuthor.put(commit.getAuthor().getName(), commitsPerAuthorCount + 1);
+
+                Integer commitsPerRepositoryCount = commitsPerRepository.get(repository.getName());
+                if (commitsPerRepositoryCount == null) {
+                    commitsPerRepositoryCount = 0;
+                }
+                commitsPerRepository.put(repository.getName(), commitsPerRepositoryCount + 1);
+            }
+        }
+    }
+
+    private void enqueueMetrics(HashMap<String, Integer> commitsPerProject, HashMap<String, Integer> commitsPerAuthor, HashMap<String, Integer> commitsPerRepository) {
         // enqueue project commits metric
         for (Map.Entry<String, Integer> commitsPerProjectValue : commitsPerProject.entrySet()) {
             HashMap<String, String> commitsPerProjectMeta = new HashMap<>();
@@ -100,6 +122,5 @@ public class BitBucketServerProducer implements IProducer {
             Metric commitsPerRepositoryMetric = new Metric(commitsPerRepositoryValue.getValue().doubleValue(), "Commits per Repository", commitsPerRepositoryMeta);
             metricQueue.enqueueMetric(commitsPerRepositoryMetric);
         }
-
     }
 }

@@ -189,7 +189,7 @@ public class JiraSoftwareServerProducer implements IProducer {
     public void produceLeadTime() {
         for (Board scrumBoard : jiraRestClient.getScrumBoards()) {
             String jql = jiraRestClient.getScrumBoardJQLFilter(scrumBoard.getId());
-            jql = "resolutiondate > -1d AND " + jql; // only show resolved issues from last day
+            jql = addToJQL(jql, "resolutiondate > -1d");
             Collection<Issue> issues = jiraRestClient.getIssuesByJQL(jql);
 
             for (Issue issue : issues) {
@@ -206,15 +206,26 @@ public class JiraSoftwareServerProducer implements IProducer {
                     metricQueue.enqueueMetric(new Metric(daysToFinish.doubleValue(), "Lead Time", meta));
                 } else {
                     log.error("created or resolution date empty on resolved issue " + issue.getKey() + ", created: " + created + ", resolution date: " + resolutionDate);
+                    log.debug("used JQL: " + jql);
                 }
             }
         }
     }
 
+    private String addToJQL(String jql, String conditionToAdd) {
+        if (jql.toLowerCase().contains("order by")) {
+            jql = jql.toLowerCase().replace(" order by", ") order by");
+        } else {
+            jql = jql + ")";
+        }
+        jql = conditionToAdd + " AND (" + jql;
+        return jql;
+    }
+
     public void produceBugRate() {
         for (Board scrumBoard : jiraRestClient.getScrumBoards()) {
             String jql = jiraRestClient.getScrumBoardJQLFilter(scrumBoard.getId());
-            jql = "resolutiondate > -1d AND type = Bug AND " + jql; // only show resolved issues from last day
+            jql = "created  > -1d AND type = Bug AND " + jql; // only show issued created in the last 24h
             Collection<Issue> issues = jiraRestClient.getIssuesByJQL(jql);
 
             Integer newBugsCount = issues.size();
@@ -229,7 +240,7 @@ public class JiraSoftwareServerProducer implements IProducer {
     public void produceRecidivism() {
         for (Board scrumBoard : jiraRestClient.getScrumBoards()) {
             String jql = jiraRestClient.getScrumBoardJQLFilter(scrumBoard.getId());
-            jql = "resolutiondate > -1d AND " + jql; // only show resolved issues from last day
+            jql = addToJQL(jql, "resolutiondate > -1d");
             Collection<Issue> issues = jiraRestClient.getIssuesByJQL(jql);
 
             for (Issue issue : issues) {
@@ -274,7 +285,7 @@ public class JiraSoftwareServerProducer implements IProducer {
     public void produceAcceptanceCriteriaVolatility() {
         for (Board scrumBoard : jiraRestClient.getScrumBoards()) {
             String jql = jiraRestClient.getScrumBoardJQLFilter(scrumBoard.getId());
-            jql = "resolutiondate > -1d AND " + jql; // only show resolved issues from last day
+            jql = addToJQL(jql, "resolutiondate > -1d");
             Collection<Issue> issues = jiraRestClient.getIssuesByJQL(jql);
 
             String acceptanceCriteriaFieldName = propertyManager.getJirasoftwareAcceptanceCriteriaFieldName();
@@ -342,7 +353,7 @@ public class JiraSoftwareServerProducer implements IProducer {
     public void produceIssueLabels() {
         for (Board scrumBoard : jiraRestClient.getScrumBoards()) {
             String jql = jiraRestClient.getScrumBoardJQLFilter(scrumBoard.getId());
-            jql = "resolutiondate > -1d AND " + jql; // only show resolved issues from last day
+            jql = addToJQL(jql, "resolutiondate > -1d");
             Collection<Issue> issues = jiraRestClient.getIssuesByJQL(jql);
 
             for (Issue issue : issues) {

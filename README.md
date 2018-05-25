@@ -83,7 +83,7 @@ A consumer is a data sink that takes the metrics data to provide further process
 
 #### Authentication Properties
 
-- consumer.elasicsearch.baseUrl`
+- `consumer.elasicsearch.baseUrl`
 
 ## Getting Started
 

@@ -45,7 +45,7 @@ public class SonarQubeProducer implements IProducer {
         if (propertyManager.getSonarqubeMetrics() != null) {
             for (String metric : propertyManager.getSonarqubeMetrics().split(",")) {
                 try { // only take known and checked values
-                    Metric newMetric = Metric.valueOf(metric);
+                    Metric newMetric = Metric.getMetric(metric);
                     metricsList.add(newMetric);
                 } catch (IllegalArgumentException e) {
                     log.error(e);
@@ -55,21 +55,26 @@ public class SonarQubeProducer implements IProducer {
             Metric[] metrics = new Metric[0];
             metrics = metricsList.toArray(metrics);
 
-            // failsafe execution
-            try {
-                for (Component component : sonarQubeRestClient.getComponents()) {
-                    Collection<Measure> measures = sonarQubeRestClient.getMeasures(component.getKey(), metrics);
-                    for (Measure measure : measures) {
-                        Map<String, String> meta = new HashMap<>();
-                        meta.put("component", component.getName());
-                        metricQueue.enqueueMetric(new at.grisa.agilemetrics.entity.Metric(measure.getValue(), "SonarQube - " + measure.getMetric(), meta));
-                    }
-
-                }
-            } catch (Exception e) {
-                log.error("Error producing metric.", e);
+            if (metrics.length > 0) {
+                produceMetrics(metrics);
             }
+        }
+    }
 
+    private void produceMetrics(Metric[] metrics) {
+        // failsafe execution
+        try {
+            for (Component component : sonarQubeRestClient.getComponents()) {
+                Collection<Measure> measures = sonarQubeRestClient.getMeasures(component.getKey(), metrics);
+                for (Measure measure : measures) {
+                    Map<String, String> meta = new HashMap<>();
+                    meta.put("component", component.getName());
+                    metricQueue.enqueueMetric(new at.grisa.agilemetrics.entity.Metric(measure.getValue(), "SonarQube - " + measure.getMetric(), meta));
+                }
+
+            }
+        } catch (Exception e) {
+            log.error("Error producing metric.", e);
         }
     }
 }

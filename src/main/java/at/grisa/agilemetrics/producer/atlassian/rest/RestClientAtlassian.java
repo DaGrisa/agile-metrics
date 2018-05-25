@@ -62,7 +62,7 @@ public class RestClientAtlassian extends RestClient {
                     responseType
             ).getBody();
         } catch (HttpClientErrorException e) {
-            log.error("GET request to resource " + restUrl + " failed");
+            log.info("GET request to resource " + restUrl + " failed");
             throw e;
         }
     }

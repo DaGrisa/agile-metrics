@@ -6,6 +6,7 @@ import at.grisa.agilemetrics.producer.sonarqube.restentity.*;
 import at.grisa.agilemetrics.util.CredentialManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -64,9 +65,15 @@ public class SonarQubeRestClient {
         QueryParam metricsQueryParam = new QueryParam("metricKeys", Arrays.stream(metrics).map(Metric::toString).collect(Collectors.joining(",")));
 
         Collection<Measure> measures = null;
-        ComponentMeasures componentMeasures = restClient.getEntity(ComponentMeasures.class, PATH_MEASURES, componentQueryParam, metricsQueryParam);
+        ComponentMeasures componentMeasures = null;
+        try {
+            componentMeasures = restClient.getEntity(ComponentMeasures.class, PATH_MEASURES, componentQueryParam, metricsQueryParam);
+        } catch (HttpClientErrorException e) {
+            log.error("error calling path " + PATH_MEASURES + " for component " + componentKey + " and metrics " + metrics, e);
+        }
 
-        if (componentMeasures.getComponent() != null) {
+
+        if (componentMeasures != null && componentMeasures.getComponent() != null) {
             measures = Arrays.asList(componentMeasures.getComponent().getMeasures());
         }
 

@@ -1,7 +1,8 @@
 package at.grisa.agilemetrics.producer.sonarqube.restentity;
 
 public enum Metric {
-    COVERAGE("coverage");
+    COVERAGE("coverage"),
+    TEST_EXECUTION_TIME("test_execution_time");
 
     private String value;
 
@@ -12,7 +13,9 @@ public enum Metric {
     public static Metric getMetric(String value) {
         switch (value) {
             case "coverage":
-                return COVERAGE;
+                return Metric.COVERAGE;
+            case "test_execution_time":
+                return Metric.TEST_EXECUTION_TIME;
             default:
                 throw new IllegalArgumentException("unknown value " + value + " for the Metric enum");
         }
@@ -20,6 +23,6 @@ public enum Metric {
 
     @Override
     public String toString() {
-        return super.toString();
+        return value;
     }
 }

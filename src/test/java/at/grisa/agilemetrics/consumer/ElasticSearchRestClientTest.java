@@ -49,7 +49,8 @@ public class ElasticSearchRestClientTest {
         httpRequest = new HttpRequest();
         httpRequest.withMethod("POST")
                 .withPath("/_bulk")
-                .withBody(requestBody);
+                .withBody(requestBody)
+                .withHeader("Content-Type", "application/json");
 
         mockServerClient.when(httpRequest)
                 .respond(

@@ -22,11 +22,15 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 
@@ -118,10 +122,13 @@ public class ElasticSearchRestClient {
             }
         }
 
-        HttpEntity<String> httpEntity = new HttpEntity<>(requestBuilder.toString());
+        MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+        headers.add("Content-Type", "application/json");
+        HttpEntity<String> httpEntity = new HttpEntity<>(requestBuilder.toString(), headers);
 
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(bulkUrl);
         RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(0, new StringHttpMessageConverter(Charset.forName("UTF-8")));
 
         BulkResponse response = null;
         try {
@@ -135,8 +142,9 @@ public class ElasticSearchRestClient {
             metricErrorHandler.saveErrorMetrics(metrics);
         }
 
-        if (response != null && response.getErrors()) {
+        if (response != null && response.getErrors() != null && response.getErrors()) {
             log.error("Error sending bulk metrics to elasticsearch.");
+            log.debug("Response: " + response);
             metricErrorHandler.saveErrorMetrics(metrics);
         }
     }

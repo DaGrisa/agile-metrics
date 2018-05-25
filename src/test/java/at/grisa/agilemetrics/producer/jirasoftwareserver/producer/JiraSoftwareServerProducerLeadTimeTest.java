@@ -45,7 +45,7 @@ public class JiraSoftwareServerProducerLeadTimeTest {
     private Issue issue3;
 
     private final Long boardId = 123L;
-    private final String boardJql = "boardJQL";
+    private final String boardJql = "boardJQL ORDER BY boing";
 
     @Before
     public void createMocks() {
@@ -85,7 +85,7 @@ public class JiraSoftwareServerProducerLeadTimeTest {
 
         when(jiraSoftwareServerRestClient.getScrumBoards()).thenReturn(Arrays.asList(board));
         when(jiraSoftwareServerRestClient.getScrumBoardJQLFilter(boardId)).thenReturn(boardJql);
-        when(jiraSoftwareServerRestClient.getIssuesByJQL("resolutiondate > -1d AND " + boardJql)).thenReturn(Arrays.asList(issue1, issue2, issue3));
+        when(jiraSoftwareServerRestClient.getIssuesByJQL("resolutiondate > -1d AND (boardjql) order by boing")).thenReturn(Arrays.asList(issue1, issue2, issue3));
     }
 
     @Test
