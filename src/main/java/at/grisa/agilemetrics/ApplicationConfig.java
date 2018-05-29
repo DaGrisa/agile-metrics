@@ -11,9 +11,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 @Configuration
 public class ApplicationConfig {
+    private static final int THREADS_COUNT = 2;
+
     @Autowired
     private CredentialManager credentialManager;
 
@@ -42,5 +45,12 @@ public class ApplicationConfig {
     @Bean
     public ObjectWriter objectWriter(ObjectMapper objectMapper) {
         return objectMapper.writerWithDefaultPrettyPrinter();
+    }
+
+    @Bean
+    public ThreadPoolTaskScheduler threadPoolTaskScheduler() {
+        ThreadPoolTaskScheduler threadPoolTaskScheduler = new ThreadPoolTaskScheduler();
+        threadPoolTaskScheduler.setPoolSize(THREADS_COUNT);
+        return threadPoolTaskScheduler;
     }
 }

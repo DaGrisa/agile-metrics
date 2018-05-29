@@ -8,4 +8,12 @@ public class QueryParam {
         this.name = name;
         this.value = value;
     }
+
+    @Override
+    public String toString() {
+        return "QueryParam{" +
+                "name='" + name + '\'' +
+                ", value=" + value +
+                '}';
+    }
 }

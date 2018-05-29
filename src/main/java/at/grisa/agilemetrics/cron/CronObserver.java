@@ -45,7 +45,7 @@ public class CronObserver {
         }
     }
 
-    @Scheduled(fixedDelay = 5000)
+    @Scheduled(fixedDelay = 10000)
     public void activateConsumer() {
         if (!consumers.isEmpty()) {
             log.debug("Checking metrics queue...");
@@ -68,11 +68,12 @@ public class CronObserver {
         }
     }
 
-    @Scheduled(cron = "${cron.expression.daily:0 10 0 * * ?}")
+    @Scheduled(cron = "${cron.expression.daily:0 15 0 * * ?}")
     public void activateProducerDaily() {
         metricQueue.resetMetricsCounter();
         producers.parallelStream().forEach(producer -> safeProduce(producer));
         statisticRepository.save(new Statistic(metricQueue.getMetricsCounter(), ZonedDateTime.now()));
+        log.info("producing daily metrics finished");
     }
 
     /**

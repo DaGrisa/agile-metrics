@@ -10,10 +10,12 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.support.BasicAuthorizationInterceptor;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 
 public class RestClientAtlassian extends RestClient {
     private static final Logger log = LogManager.getLogger(BitBucketServerRestClient.class);
@@ -52,7 +54,9 @@ public class RestClientAtlassian extends RestClient {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(restUrl);
 
         for (QueryParam queryParam : queryParams) {
-            builder.queryParam(queryParam.name, queryParam.value);
+            if (queryParam.name != null && queryParam.value != null) {
+                builder.queryParam(queryParam.name, queryParam.value);
+            }
         }
 
         try {
@@ -61,8 +65,8 @@ public class RestClientAtlassian extends RestClient {
                     null,
                     responseType
             ).getBody();
-        } catch (HttpClientErrorException e) {
-            log.info("GET request to resource " + restUrl + " failed");
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            log.info("GET request to resource " + restUrl + " with query params " + Arrays.toString(queryParams) + " failed");
             throw e;
         }
     }

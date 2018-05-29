@@ -53,20 +53,26 @@ public class BitBucketServerProducer implements IProducer {
     }
 
     private void collectDailyCommitData() {
+        // get all commits per project / repository / author
+        Collection<Project> projects = bitBucketServerRestClient.getProjects();
+        log.debug(projects.size() + " projects found on BitBucket Server instance");
+        for (Project project : projects) {
+            log.debug("collecting data for project " + project.getName());
+            // failsafe
+            try {
+                collectDailyCommitDataPerProject(project);
+            } catch (Exception e) {
+                log.error("error collecting daily commits for project " + project.getName(), e);
+            }
+            log.debug("finished collecting data for project " + project.getName());
+        }
+    }
+
+    private void collectDailyCommitDataPerProject(Project project) {
         HashMap<String, Integer> commitsPerProject = new HashMap<>();
         HashMap<String, Integer> commitsPerAuthor = new HashMap<>();
         HashMap<String, Integer> commitsPerRepository = new HashMap<>();
 
-        // get all commits per project / repository / author
-        Collection<Project> projects = bitBucketServerRestClient.getProjects();
-        for (Project project : projects) {
-            collectDailyCommitDataPerProject(commitsPerProject, commitsPerAuthor, commitsPerRepository, project);
-        }
-
-        enqueueMetrics(commitsPerProject, commitsPerAuthor, commitsPerRepository);
-    }
-
-    private void collectDailyCommitDataPerProject(HashMap<String, Integer> commitsPerProject, HashMap<String, Integer> commitsPerAuthor, HashMap<String, Integer> commitsPerRepository, Project project) {
         Date created = new Date();
         Calendar cal = Calendar.getInstance();
         cal.setTime(created);
@@ -75,7 +81,14 @@ public class BitBucketServerProducer implements IProducer {
 
         Collection<Repository> repositories = bitBucketServerRestClient.getRepositories(project.getKey());
         for (Repository repository : repositories) {
-            Collection<Commit> commits = bitBucketServerRestClient.getCommits(project.getKey(), repository.getSlug(), from);
+            // failsafe
+            Collection<Commit> commits = null;
+            try {
+                commits = bitBucketServerRestClient.getCommits(project.getKey(), repository.getSlug(), from);
+            } catch (Exception e) {
+                log.error("error collecting commit data for repository " + repository.getName() + " in project " + project.getName(), e);
+            }
+
             for (Commit commit : commits) {
                 Integer commitsPerProjectCount = commitsPerProject.get(project.getName());
                 if (commitsPerProjectCount == null) {
@@ -96,6 +109,8 @@ public class BitBucketServerProducer implements IProducer {
                 commitsPerRepository.put(repository.getName(), commitsPerRepositoryCount + 1);
             }
         }
+
+        enqueueMetrics(commitsPerProject, commitsPerAuthor, commitsPerRepository);
     }
 
     private void enqueueMetrics(HashMap<String, Integer> commitsPerProject, HashMap<String, Integer> commitsPerAuthor, HashMap<String, Integer> commitsPerRepository) {

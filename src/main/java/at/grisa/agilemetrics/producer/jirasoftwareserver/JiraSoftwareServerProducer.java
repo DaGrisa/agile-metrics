@@ -75,7 +75,9 @@ public class JiraSoftwareServerProducer implements IProducer {
         // failsafe producing
         for (Method method : producingMethods) {
             try {
+                log.info("invoking producing method: " + method.getName());
                 method.invoke(this);
+                log.info("producing method completed: " + method.getName());
             } catch (Exception e) {
                 log.error("Error in producing method " + method, e);
             }
@@ -316,19 +318,29 @@ public class JiraSoftwareServerProducer implements IProducer {
             VelocityReport velocityReport = jiraRestClient.getVelocityReportGreenhopper(rapidView.getId());
 
             List<Velocity> velocities = velocityRepository.findByTeam(rapidView.getName());
-            List<String> savedSprintNames = velocities.stream().map(Velocity::getSprint).collect(Collectors.toList());
+            List<String> savedSprintNames = new LinkedList<>();
+            if (velocities != null) {
+                savedSprintNames = velocities.stream().map(Velocity::getSprint).collect(Collectors.toList());
+                log.info("velocities found for sprints " + savedSprintNames);
+            } else {
+                log.warn("no saved velocities found, ignore if this is the first run");
+            }
 
             List<VelocityStats> velocityStats = new LinkedList<>();
             Map<Long, Sprint> sprints = new HashMap<>();
 
-            for (Sprint sprint : velocityReport.getSprints()) {
-                if (sprint.getState().equalsIgnoreCase("closed") && !savedSprintNames.contains(sprint.getName())) {
-                    VelocityStats velocityStat = velocityReport.getVelocityStatEntries().get(sprint.getId().toString());
-                    velocityStat.setSprintId(sprint.getId());
+            if (velocityReport != null) {
+                for (Sprint sprint : velocityReport.getSprints()) {
+                    if (sprint.getState().equalsIgnoreCase("closed") && !savedSprintNames.contains(sprint.getName())) {
+                        VelocityStats velocityStat = velocityReport.getVelocityStatEntries().get(sprint.getId().toString());
+                        velocityStat.setSprintId(sprint.getId());
 
-                    velocityStats.add(velocityStat);
-                    sprints.put(sprint.getId(), sprint);
+                        velocityStats.add(velocityStat);
+                        sprints.put(sprint.getId(), sprint);
+                    }
                 }
+            } else {
+                log.info("velocity report for rapidview " + rapidView.getName() + " is null");
             }
 
             for (VelocityStats velocityStat : velocityStats) {
@@ -356,16 +368,22 @@ public class JiraSoftwareServerProducer implements IProducer {
             jql = addToJQL(jql, "resolutiondate > -1d");
             Collection<Issue> issues = jiraRestClient.getIssuesByJQL(jql);
 
-            for (Issue issue : issues) {
-                if (issue.getFields().getLabels() != null && issue.getFields().getLabels().length > 0) {
-                    HashMap<String, String> meta = new HashMap<>();
-                    meta.put(META_BOARDNAME, scrumBoard.getName());
-                    meta.put(META_ISSUEKEY, issue.getKey());
+            if (issues != null) {
+                for (Issue issue : issues) {
+                    if (issue.getFields().getLabels() != null && issue.getFields().getLabels().length > 0) {
+                        HashMap<String, String> meta = new HashMap<>();
+                        meta.put(META_BOARDNAME, scrumBoard.getName());
+                        meta.put(META_ISSUEKEY, issue.getKey());
 
-                    Double tagCount = new Double(issue.getFields().getLabels().length);
-                    Set<String> tags = new HashSet<>(Arrays.asList(issue.getFields().getLabels()));
-                    metricQueue.enqueueMetric(new Metric(tagCount, "Issue Labels", meta, tags));
+                        Double tagCount = new Double(issue.getFields().getLabels().length);
+                        Set<String> tags = new HashSet<>(Arrays.asList(issue.getFields().getLabels()));
+                        metricQueue.enqueueMetric(new Metric(tagCount, "Issue Labels", meta, tags));
+                    } else {
+                        log.debug("no labels for issue " + issue.getKey());
+                    }
                 }
+            } else {
+                log.info("no issues for scrumboard " + scrumBoard.getName());
             }
         }
     }
