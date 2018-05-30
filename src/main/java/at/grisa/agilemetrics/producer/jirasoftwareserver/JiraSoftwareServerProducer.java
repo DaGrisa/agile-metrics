@@ -227,7 +227,7 @@ public class JiraSoftwareServerProducer implements IProducer {
     public void produceBugRate() {
         for (Board scrumBoard : jiraRestClient.getScrumBoards()) {
             String jql = jiraRestClient.getScrumBoardJQLFilter(scrumBoard.getId());
-            jql = "created  > -1d AND type = Bug AND " + jql; // only show issued created in the last 24h
+            jql = addToJQL(jql, "created > -1d AND type = Bug"); // only show issues created in the last 24h
             Collection<Issue> issues = jiraRestClient.getIssuesByJQL(jql);
 
             Integer newBugsCount = issues.size();
@@ -253,10 +253,40 @@ public class JiraSoftwareServerProducer implements IProducer {
 
     private void produceRecidivismFromIssue(Issue issue, String scrumBoardName) {
         List<String> workflow = propertyManager.getJirasoftwareWorkflow();
-        Issue issueChangelog = jiraRestClient.getIssue(issue.getId(), new QueryParam("expand", "changelog"));
-        List<HistoryItem> statusChanges = new LinkedList<>();
+        if (workflow.isEmpty()) {
+            throw new IllegalStateException("no JIRA Software workflow defined in application.properties (producer.jirasoftware.workflow), cannot produce recidivism");
+        }
 
-        for (History history : issueChangelog.getChangelog().getHistories()) {
+        Issue issueWithChangelog = jiraRestClient.getIssue(issue.getId(), new QueryParam("expand", "changelog"));
+
+        if (issueWithChangelog != null && issueWithChangelog.getChangelog() != null) {
+            List<HistoryItem> statusChanges = getStatusChanges(issueWithChangelog);
+
+            statusChanges.sort((HistoryItem item1, HistoryItem item2) -> item1.getCreated().compareTo(item2.getCreated()));
+
+            Integer recidivismCount = 0;
+            Integer lastStatusIndex = 0;
+            for (HistoryItem item : statusChanges) {
+                Integer actualStatusIndex = workflow.indexOf(item.getToString().toLowerCase());
+                if (actualStatusIndex < lastStatusIndex) {
+                    recidivismCount++;
+                }
+                lastStatusIndex = actualStatusIndex;
+            }
+
+            HashMap<String, String> meta = new HashMap<>();
+            meta.put(META_BOARDNAME, scrumBoardName);
+            meta.put(META_ISSUEKEY, issueWithChangelog.getKey());
+
+            metricQueue.enqueueMetric(new Metric(recidivismCount.doubleValue(), "Recidivism", meta));
+        } else {
+            log.error("no changelog for issue " + issue.getKey());
+        }
+    }
+
+    private List<HistoryItem> getStatusChanges(Issue issueWithChangelog) {
+        List<HistoryItem> statusChanges = new LinkedList<>();
+        for (History history : issueWithChangelog.getChangelog().getHistories()) {
             for (HistoryItem item : history.getItems()) {
                 if (item.getField().equalsIgnoreCase("status")) {
                     item.setCreated(history.getCreated());
@@ -265,23 +295,7 @@ public class JiraSoftwareServerProducer implements IProducer {
             }
         }
 
-        statusChanges.sort((HistoryItem item1, HistoryItem item2) -> item1.getCreated().compareTo(item2.getCreated()));
-
-        Integer recidivismCount = 0;
-        Integer lastStatusIndex = 0;
-        for (HistoryItem item : statusChanges) {
-            Integer actualStatusIndex = workflow.indexOf(item.getToString().toLowerCase());
-            if (actualStatusIndex < lastStatusIndex) {
-                recidivismCount++;
-            }
-            lastStatusIndex = actualStatusIndex;
-        }
-
-        HashMap<String, String> meta = new HashMap<>();
-        meta.put(META_BOARDNAME, scrumBoardName);
-        meta.put(META_ISSUEKEY, issueChangelog.getKey());
-
-        metricQueue.enqueueMetric(new Metric(recidivismCount.doubleValue(), "Recidivism", meta));
+        return statusChanges;
     }
 
     public void produceAcceptanceCriteriaVolatility() {
@@ -291,26 +305,33 @@ public class JiraSoftwareServerProducer implements IProducer {
             Collection<Issue> issues = jiraRestClient.getIssuesByJQL(jql);
 
             String acceptanceCriteriaFieldName = propertyManager.getJirasoftwareAcceptanceCriteriaFieldName();
+            if (acceptanceCriteriaFieldName == null) {
+                throw new IllegalStateException("no JIRA Software acceptance criteria field name defined in application.properties (producer.jirasoftware.acceptanceCriteriaFieldName), cannot produce acceptance criteria volatility");
+            }
 
             for (Issue issue : issues) {
-                Issue issueChangelog = jiraRestClient.getIssue(issue.getId(), new QueryParam("expand", "changelog"));
-                Integer acceptanceCriteriaChangeCounter = -1;
-
-                for (History history : issueChangelog.getChangelog().getHistories()) {
-                    for (HistoryItem item : history.getItems()) {
-                        if (item.getField().equalsIgnoreCase(acceptanceCriteriaFieldName)) {
-                            acceptanceCriteriaChangeCounter++;
-                        }
-                    }
-                }
-
-                HashMap<String, String> meta = new HashMap<>();
-                meta.put(META_BOARDNAME, scrumBoard.getName());
-                meta.put(META_ISSUEKEY, issueChangelog.getKey());
-
-                metricQueue.enqueueMetric(new Metric(acceptanceCriteriaChangeCounter.doubleValue(), "Acceptance Criteria Volatility", meta));
+                produceAcceptanceCriteriaVolatilityForIssue(issue, scrumBoard, acceptanceCriteriaFieldName);
             }
         }
+    }
+
+    private void produceAcceptanceCriteriaVolatilityForIssue(Issue issue, Board scrumBoard, String acceptanceCriteriaFieldName) {
+        Issue issueChangelog = jiraRestClient.getIssue(issue.getId(), new QueryParam("expand", "changelog"));
+        Integer acceptanceCriteriaChangeCounter = 0;
+
+        for (History history : issueChangelog.getChangelog().getHistories()) {
+            for (HistoryItem item : history.getItems()) {
+                if (item.getField().equalsIgnoreCase(acceptanceCriteriaFieldName)) {
+                    acceptanceCriteriaChangeCounter++;
+                }
+            }
+        }
+
+        HashMap<String, String> meta = new HashMap<>();
+        meta.put(META_BOARDNAME, scrumBoard.getName());
+        meta.put(META_ISSUEKEY, issueChangelog.getKey());
+
+        metricQueue.enqueueMetric(new Metric(acceptanceCriteriaChangeCounter.doubleValue(), "Acceptance Criteria Volatility", meta));
     }
 
     public void produceVelocity() {
