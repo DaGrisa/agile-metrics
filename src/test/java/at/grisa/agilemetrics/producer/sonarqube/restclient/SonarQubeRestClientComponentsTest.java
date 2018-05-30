@@ -1,6 +1,7 @@
-package at.grisa.agilemetrics.producer.sonarqube;
+package at.grisa.agilemetrics.producer.sonarqube.restclient;
 
 import at.grisa.agilemetrics.ApplicationConfig;
+import at.grisa.agilemetrics.producer.sonarqube.SonarQubeRestClient;
 import at.grisa.agilemetrics.producer.sonarqube.restentity.Component;
 import at.grisa.agilemetrics.util.CredentialManager;
 import org.junit.Before;
