@@ -1,8 +1,8 @@
-package at.grisa.agilemetrics.producer.sonarqube;
+package at.grisa.agilemetrics.producer.bitbucketserver.restclient;
 
 import at.grisa.agilemetrics.ApplicationConfig;
-import at.grisa.agilemetrics.producer.sonarqube.restentity.Measure;
-import at.grisa.agilemetrics.producer.sonarqube.restentity.Metric;
+import at.grisa.agilemetrics.producer.bitbucketserver.BitBucketServerRestClient;
+import at.grisa.agilemetrics.producer.bitbucketserver.restentity.Repository;
 import at.grisa.agilemetrics.util.CredentialManager;
 import org.junit.Before;
 import org.junit.Rule;
@@ -27,27 +27,25 @@ import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {SonarQubeRestClient.class, CredentialManager.class, ApplicationConfig.class})
-@TestPropertySource("classpath:sonarqube-test.properties")
-public class SonarQubeRestClientMeasuresTest {
+@ContextConfiguration(classes = {BitBucketServerRestClient.class, CredentialManager.class, ApplicationConfig.class})
+@TestPropertySource("classpath:bitbucket-test.properties")
+public class BitBucketServerRestClientRepositoriesTest {
     @Autowired
-    private SonarQubeRestClient client;
+    private BitBucketServerRestClient client;
 
     @Rule
     public MockServerRule mockServerRule = new MockServerRule(this, 1080);
     private MockServerClient mockServerClient;
-    private Collection<Measure> measures;
+    private Collection<Repository> repositories;
 
     @Before
-    public void loadComponentFromMockServer() throws URISyntaxException, IOException {
-        String responseBody = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("sonarqube/component.js").toURI())));
+    public void loadReposFromMockServer() throws URISyntaxException, IOException {
+        String responseBody = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("bitbucket/repos.js").toURI())));
 
         mockServerClient.when(
                 request()
                         .withMethod("GET")
-                        .withPath("/api/measures/component")
-                        .withQueryStringParameter("component", "component")
-                        .withQueryStringParameter("metricKeys", "coverage")
+                        .withPath("/rest/api/1.0/projects/PRJ/repos")
         )
                 .respond(
                         response()
@@ -56,18 +54,20 @@ public class SonarQubeRestClientMeasuresTest {
                                 .withBody(responseBody)
                 );
 
-        measures = client.getMeasures("component", Metric.COVERAGE);
+        String projectKey = "PRJ";
+        repositories = client.getRepositories(projectKey);
     }
 
     @Test
-    public void countIssues() {
-        assertEquals("1 measure in total", 1, measures.size());
+    public void countRepos() {
+        assertEquals("1 repo in total", 1, repositories.size());
     }
 
     @Test
     public void checkData() {
-        Measure measure = measures.iterator().next();
-        assertEquals("check measure metric", "coverage", measure.getMetric());
-        assertEquals("check measure value", new Double(95.3), measure.getValue());
+        Repository repository = repositories.iterator().next();
+        assertEquals("check repository id", new Long(1), repository.getId());
+        assertEquals("check repository slug", "my-repo", repository.getSlug());
+        assertEquals("check repository name", "My repo", repository.getName());
     }
 }

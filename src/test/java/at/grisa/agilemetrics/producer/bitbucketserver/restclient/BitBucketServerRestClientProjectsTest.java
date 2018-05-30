@@ -1,7 +1,8 @@
-package at.grisa.agilemetrics.producer.bitbucketserver;
+package at.grisa.agilemetrics.producer.bitbucketserver.restclient;
 
 import at.grisa.agilemetrics.ApplicationConfig;
-import at.grisa.agilemetrics.producer.bitbucketserver.restentity.Repository;
+import at.grisa.agilemetrics.producer.bitbucketserver.BitBucketServerRestClient;
+import at.grisa.agilemetrics.producer.bitbucketserver.restentity.Project;
 import at.grisa.agilemetrics.util.CredentialManager;
 import org.junit.Before;
 import org.junit.Rule;
@@ -28,23 +29,23 @@ import static org.mockserver.model.HttpResponse.response;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {BitBucketServerRestClient.class, CredentialManager.class, ApplicationConfig.class})
 @TestPropertySource("classpath:bitbucket-test.properties")
-public class BitBucketServerRestClientRepositoriesTest {
+public class BitBucketServerRestClientProjectsTest {
     @Autowired
     private BitBucketServerRestClient client;
 
     @Rule
     public MockServerRule mockServerRule = new MockServerRule(this, 1080);
     private MockServerClient mockServerClient;
-    private Collection<Repository> repositories;
+    private Collection<Project> projects;
 
     @Before
-    public void loadReposFromMockServer() throws URISyntaxException, IOException {
-        String responseBody = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("bitbucket/repos.js").toURI())));
+    public void loadProjectsFromMockServer() throws IOException, URISyntaxException {
+        String responseBody = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("bitbucket/projects.js").toURI())));
 
         mockServerClient.when(
                 request()
                         .withMethod("GET")
-                        .withPath("/rest/api/1.0/projects/PRJ/repos")
+                        .withPath("/rest/api/1.0/projects")
         )
                 .respond(
                         response()
@@ -53,20 +54,19 @@ public class BitBucketServerRestClientRepositoriesTest {
                                 .withBody(responseBody)
                 );
 
-        String projectKey = "PRJ";
-        repositories = client.getRepositories(projectKey);
+        projects = client.getProjects();
     }
 
     @Test
     public void countRepos() {
-        assertEquals("1 repo in total", 1, repositories.size());
+        assertEquals("1 project in total", 1, projects.size());
     }
 
     @Test
     public void checkData() {
-        Repository repository = repositories.iterator().next();
-        assertEquals("check repository id", new Long(1), repository.getId());
-        assertEquals("check repository slug", "my-repo", repository.getSlug());
-        assertEquals("check repository name", "My repo", repository.getName());
+        Project project = projects.iterator().next();
+        assertEquals("check project id", new Long(1), project.getId());
+        assertEquals("check project key", "PRJ", project.getKey());
+        assertEquals("check project name", "My Cool Project", project.getName());
     }
 }

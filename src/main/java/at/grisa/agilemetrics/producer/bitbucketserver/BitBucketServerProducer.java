@@ -52,7 +52,7 @@ public class BitBucketServerProducer implements IProducer {
         }
     }
 
-    private void collectDailyCommitData() {
+    public void collectDailyCommitData() {
         // get all commits per project / repository / author
         Collection<Project> projects = bitBucketServerRestClient.getProjects();
         log.debug(projects.size() + " projects found on BitBucket Server instance");

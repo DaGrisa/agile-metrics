@@ -1,6 +1,7 @@
-package at.grisa.agilemetrics.producer.bitbucketserver;
+package at.grisa.agilemetrics.producer.bitbucketserver.restclient;
 
 import at.grisa.agilemetrics.ApplicationConfig;
+import at.grisa.agilemetrics.producer.bitbucketserver.BitBucketServerRestClient;
 import at.grisa.agilemetrics.producer.bitbucketserver.restentity.Commit;
 import at.grisa.agilemetrics.util.CredentialManager;
 import org.junit.Before;
@@ -19,6 +20,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockserver.model.Header.header;
@@ -28,7 +30,7 @@ import static org.mockserver.model.HttpResponse.response;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {BitBucketServerRestClient.class, CredentialManager.class, ApplicationConfig.class})
 @TestPropertySource("classpath:bitbucket-test.properties")
-public class BitBucketServerRestClientCommitsTest {
+public class BitBucketServerRestClientCommitsFromTest {
     @Autowired
     private BitBucketServerRestClient client;
 
@@ -39,12 +41,12 @@ public class BitBucketServerRestClientCommitsTest {
 
     @Before
     public void loadCommitsFromMockServer() throws URISyntaxException, IOException {
-        String responseBody = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("bitbucket/commits.js").toURI())));
+        String responseBody = new String(Files.readAllBytes(Paths.get(getClass().getClassLoader().getResource("bitbucket/commits-from.js").toURI())));
 
         mockServerClient.when(
                 request()
                         .withMethod("GET")
-                        .withPath("/rest/api/1.0/projects/PRJ/repos/REPO/commits")
+                        .withPath("/rest/api/1.0/projects/PRJ/repos/FROM/commits")
         )
                 .respond(
                         response()
@@ -54,19 +56,14 @@ public class BitBucketServerRestClientCommitsTest {
                 );
 
         String projectKey = "PRJ";
-        String repositorySlug = "REPO";
-        commits = client.getCommits(projectKey, repositorySlug);
+        String repositorySlug = "FROM";
+        Date from = new Date();
+        from.setTime(1518587500000L);
+        commits = client.getCommits(projectKey, repositorySlug, from);
     }
 
     @Test
     public void countCommits() {
-        assertEquals("1 commit in total", 1, commits.size());
-    }
-
-    @Test
-    public void checkData() {
-        Commit commit = commits.iterator().next();
-        assertEquals("check commit id", "def0123abcdef4567abcdef8987abcdef6543abc", commit.getId());
-        assertEquals("check commit message", "More work on feature 1", commit.getMessage());
+        assertEquals("3 commits from Wed Feb 14 2018 05:51:40", 3, commits.size());
     }
 }
