@@ -144,20 +144,20 @@ public class JiraSoftwareServerProducerAcceptanceCriteriaVolatilityTest {
     }
 
     @Test
-    public void produceLeadTimeTest() {
+    public void produceAcceptanceCriteriaVolatilityTest() {
         jiraSoftwareServerProducer.produceAcceptanceCriteriaVolatility();
 
         HashMap<String, String> meta = new HashMap<>();
         meta.put("issue", issue1.getKey());
         meta.put("board", board.getName());
-        Metric leadTime1 = new Metric(1.0, "Acceptance Criteria Volatility", meta);
+        Metric acVolatility1 = new Metric(1.0, "Acceptance Criteria Volatility", meta);
 
         HashMap<String, String> meta2 = new HashMap<>();
         meta2.put("issue", issue2.getKey());
         meta2.put("board", board.getName());
-        Metric leadTime2 = new Metric(4.0, "Acceptance Criteria Volatility", meta2);
+        Metric acVolatility2 = new Metric(4.0, "Acceptance Criteria Volatility", meta2);
 
-        verify(metricQueue).enqueueMetric(leadTime1);
-        verify(metricQueue).enqueueMetric(leadTime2);
+        verify(metricQueue).enqueueMetric(acVolatility1);
+        verify(metricQueue).enqueueMetric(acVolatility2);
     }
 }

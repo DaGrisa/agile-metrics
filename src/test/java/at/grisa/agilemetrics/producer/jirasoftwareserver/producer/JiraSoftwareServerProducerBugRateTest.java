@@ -59,7 +59,7 @@ public class JiraSoftwareServerProducerBugRateTest {
     }
 
     @Test
-    public void produceLeadTimeTest() {
+    public void produceBugRateTest() {
         jiraSoftwareServerProducer.produceBugRate();
 
         HashMap<String, String> meta = new HashMap<>();

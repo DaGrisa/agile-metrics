@@ -10,6 +10,10 @@ public class Value {
         // default constructor
     }
 
+    public Value(int value) {
+        this.value = value;
+    }
+
     public Integer getValue() {
         return value;
     }

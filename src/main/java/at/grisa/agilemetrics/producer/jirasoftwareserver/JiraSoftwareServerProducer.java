@@ -364,23 +364,27 @@ public class JiraSoftwareServerProducer implements IProducer {
                 log.info("velocity report for rapidview " + rapidView.getName() + " is null");
             }
 
-            for (VelocityStats velocityStat : velocityStats) {
-                String sprintName = sprints.get(velocityStat.getSprintId()).getName();
-                String sprintGoal = sprints.get(velocityStat.getSprintId()).getGoal();
-
-                HashMap<String, String> meta = new HashMap<>();
-                meta.put(META_RAPIDVIEWNAME, rapidView.getName());
-                meta.put(META_SPRINTNAME, sprintName);
-                meta.put(META_SPRINTGOAL, sprintGoal);
-
-                metricQueue.enqueueMetric(new Metric(velocityStat.getEstimated().getValue().doubleValue(), "Velocity - Estimated", meta));
-                metricQueue.enqueueMetric(new Metric(velocityStat.getCompleted().getValue().doubleValue(), "Velocity - Completed", meta));
-
-                Velocity velocity = new Velocity(rapidView.getName(), sprintName, sprintGoal, velocityStat.getEstimated().getValue(), velocityStat.getCompleted().getValue());
-                velocityRepository.save(velocity);
-            }
+            enqueueVelocityMetrics(rapidView, velocityStats, sprints);
         }
 
+    }
+
+    private void enqueueVelocityMetrics(RapidView rapidView, List<VelocityStats> velocityStats, Map<Long, Sprint> sprints) {
+        for (VelocityStats velocityStat : velocityStats) {
+            String sprintName = sprints.get(velocityStat.getSprintId()).getName();
+            String sprintGoal = sprints.get(velocityStat.getSprintId()).getGoal();
+
+            HashMap<String, String> meta = new HashMap<>();
+            meta.put(META_RAPIDVIEWNAME, rapidView.getName());
+            meta.put(META_SPRINTNAME, sprintName);
+            meta.put(META_SPRINTGOAL, sprintGoal);
+
+            metricQueue.enqueueMetric(new Metric(velocityStat.getEstimated().getValue().doubleValue(), "Velocity - Estimated", meta));
+            metricQueue.enqueueMetric(new Metric(velocityStat.getCompleted().getValue().doubleValue(), "Velocity - Completed", meta));
+
+            Velocity velocity = new Velocity(rapidView.getName(), sprintName, sprintGoal, velocityStat.getEstimated().getValue(), velocityStat.getCompleted().getValue());
+            velocityRepository.save(velocity);
+        }
     }
 
     public void produceIssueLabels() {

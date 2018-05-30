@@ -56,7 +56,7 @@ public class JiraSoftwareServerProducerRecidivismNoPropertiesTest {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void produceLeadTimeTest() {
+    public void produceRecidivismTest() {
         jiraSoftwareServerProducer.produceRecidivism();
     }
 }
