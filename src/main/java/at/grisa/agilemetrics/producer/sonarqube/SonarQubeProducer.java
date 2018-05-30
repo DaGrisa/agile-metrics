@@ -58,6 +58,8 @@ public class SonarQubeProducer implements IProducer {
             if (metrics.length > 0) {
                 produceMetrics(metrics);
             }
+        } else {
+            throw new IllegalStateException("no SonarQube metrics defined in application.properties (producer.sonarqube.metrics), cannot produce metrics");
         }
     }
 
