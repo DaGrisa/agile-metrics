@@ -4,7 +4,7 @@
     <groupId>at.grisa.agile-metrics</groupId>
     <artifactId>agile-metrics</artifactId>
     <packaging>jar</packaging>
-    <version>0.12-rc3</version>
+    <version>1.0</version>
     <name>agile-metrics</name>
 
     <parent>
