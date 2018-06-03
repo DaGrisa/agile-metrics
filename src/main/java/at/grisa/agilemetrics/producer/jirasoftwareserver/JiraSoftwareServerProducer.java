@@ -64,6 +64,7 @@ public class JiraSoftwareServerProducer implements IProducer {
             producingMethods.add(JiraSoftwareServerProducer.class.getMethod("produceEstimatedStoryPoints"));
             producingMethods.add(JiraSoftwareServerProducer.class.getMethod("produceLeadTime"));
             producingMethods.add(JiraSoftwareServerProducer.class.getMethod("produceBugRate"));
+            producingMethods.add(JiraSoftwareServerProducer.class.getMethod("produceBugCount"));
             producingMethods.add(JiraSoftwareServerProducer.class.getMethod("produceRecidivism"));
             producingMethods.add(JiraSoftwareServerProducer.class.getMethod("produceAcceptanceCriteriaVolatility"));
             producingMethods.add(JiraSoftwareServerProducer.class.getMethod("produceVelocity"));
@@ -236,6 +237,21 @@ public class JiraSoftwareServerProducer implements IProducer {
             meta.put(META_BOARDNAME, scrumBoard.getName());
 
             metricQueue.enqueueMetric(new Metric(newBugsCount.doubleValue(), "Bug Rate", meta));
+        }
+    }
+
+    public void produceBugCount() {
+        for (Board scrumBoard : jiraRestClient.getScrumBoards()) {
+            String jql = jiraRestClient.getScrumBoardJQLFilter(scrumBoard.getId());
+            jql = addToJQL(jql, "type = Bug AND statusCategory != Done"); // only show issues created in the last 24h
+            Collection<Issue> issues = jiraRestClient.getIssuesByJQL(jql);
+
+            Integer bugsCount = issues.size();
+
+            HashMap<String, String> meta = new HashMap<>();
+            meta.put(META_BOARDNAME, scrumBoard.getName());
+
+            metricQueue.enqueueMetric(new Metric(bugsCount.doubleValue(), "Bug Count", meta));
         }
     }
 
