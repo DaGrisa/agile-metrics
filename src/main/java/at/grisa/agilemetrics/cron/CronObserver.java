@@ -45,7 +45,7 @@ public class CronObserver {
         }
     }
 
-    @Scheduled(fixedDelay = 10000)
+    @Scheduled(fixedDelay = 60000)
     public void activateConsumer() {
         if (!consumers.isEmpty()) {
             log.debug("Checking metrics queue...");
