@@ -88,3 +88,6 @@ A consumer is a data sink that takes the metrics data to provide further process
 ## Getting Started
 
 To get started set all the authentication properties of the systems you would like to use in the `application.properties` file.
+The server is started with the command `java -jar agile-metrics-VERSION.jar`. 
+Authentication properties are checked at startup, so you will see any errors in the logfile `logs/rollingfile.log`.
+Metrics collecting runs every day at 00:15, you can change it with the property `cron.expression.daily` ([crontab pattern](http://www.manpagez.com/man/5/crontab/)).
