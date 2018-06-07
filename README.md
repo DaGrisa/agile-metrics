@@ -24,7 +24,14 @@ It collects measurements from [Producers](#producer), creates metrics and sends 
 
 A producer is a data source that offers measurement data.
 
-### BitBucket Server
+
+Supported producers:
+- [BitBucket Server](#bitbucket)
+- [JIRA Software Server](#jira)
+- [SonarQube](#sonarqube)
+
+
+### <a href="bitbucket"></a>BitBucket Server
 
 #### Authentication Properties
 
@@ -39,7 +46,7 @@ A producer is a data source that offers measurement data.
     - per Project
     - per Repository
 
-### JIRA Software Server
+### <a href="jira"></a>JIRA Software Server
 
 #### Authentication Properties
 
@@ -63,7 +70,7 @@ A producer is a data source that offers measurement data.
 - Velocity
 - Labels
 
-### SonarQube
+### <a href="sonarqube"></a>SonarQube
 
 #### Authentication Properties
 
@@ -79,7 +86,11 @@ All SonarQube metrics defined as comma separated list of keys in `producer.sonar
 
 A consumer is a data sink that takes the metrics data to provide further processing, for example visualization.
 
-### ElasticSearch
+
+Supported consumers:
+- [ElasticSearch](#elasticsearch)
+
+### <a href="elasticsearch"></a>ElasticSearch
 
 #### Authentication Properties
 
