@@ -55,38 +55,38 @@ public class ElasticSearchRestClient {
         this.indexName = propertyManager.getElasticSearchIndexName();
         this.typeName = propertyManager.getElasticSearchTypeName();
 
-        if (credentialManager.isProxyAuthActive()) {
-            setHttpProxyAuth(credentialManager.getHttpProxyHost(), credentialManager.getHttpProxyPort(), credentialManager.getHttpProxyUser(), credentialManager.getHttpProxyPassword());
-        } else if (credentialManager.isProxyActive()) {
-            setHttpProxy(credentialManager.getHttpProxyHost(), credentialManager.getHttpProxyPort());
-        } else {
-            HttpClientBuilder clientBuilder = HttpClientBuilder.create();
-            HttpClient httpClient = clientBuilder.build();
-            httpRequestFactory = new HttpComponentsClientHttpRequestFactory();
-            httpRequestFactory.setHttpClient(httpClient);
-        }
-    }
-
-    public void setHttpProxy(String host, Integer port) {
-        HttpHost myProxy = new HttpHost(host, port);
         HttpClientBuilder clientBuilder = HttpClientBuilder.create();
-        clientBuilder.setProxy(myProxy);
-        HttpClient httpClient = clientBuilder.build();
+        HttpClient httpClient;
+
+        if (credentialManager.isProxyAuthActive()) {
+            httpClient = getHttpClientProxyAuth(clientBuilder, credentialManager.getHttpProxyHost(), credentialManager.getHttpProxyPort(), credentialManager.getHttpProxyUser(), credentialManager.getHttpProxyPassword());
+        } else if (credentialManager.isProxyActive()) {
+            httpClient = getHttpClientProxy(clientBuilder, credentialManager.getHttpProxyHost(), credentialManager.getHttpProxyPort());
+        } else {
+            httpClient = clientBuilder.build();
+        }
+
         httpRequestFactory = new HttpComponentsClientHttpRequestFactory();
         httpRequestFactory.setHttpClient(httpClient);
+        httpRequestFactory.setConnectionRequestTimeout(30000);
+        httpRequestFactory.setConnectTimeout(30000);
+        httpRequestFactory.setReadTimeout(30000);
     }
 
-    public void setHttpProxyAuth(String host, Integer port, String username, String password) {
+    private HttpClient getHttpClientProxyAuth(HttpClientBuilder clientBuilder, String host, Integer port, String username, String password) {
         CredentialsProvider credsProvider = new BasicCredentialsProvider();
         credsProvider.setCredentials(
                 new AuthScope(host, port),
                 new UsernamePasswordCredentials(username, password));
         HttpHost myProxy = new HttpHost(host, port);
-        HttpClientBuilder clientBuilder = HttpClientBuilder.create();
         clientBuilder.setProxy(myProxy).setDefaultCredentialsProvider(credsProvider);
-        HttpClient httpClient = clientBuilder.build();
-        httpRequestFactory = new HttpComponentsClientHttpRequestFactory();
-        httpRequestFactory.setHttpClient(httpClient);
+        return clientBuilder.build();
+    }
+
+    private HttpClient getHttpClientProxy(HttpClientBuilder clientBuilder, String host, Integer port) {
+        HttpHost myProxy = new HttpHost(host, port);
+        clientBuilder.setProxy(myProxy);
+        return clientBuilder.build();
     }
 
     public boolean checkConnection() {

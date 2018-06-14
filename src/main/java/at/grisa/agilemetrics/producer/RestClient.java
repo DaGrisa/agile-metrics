@@ -32,6 +32,9 @@ public class RestClient {
         HttpClient httpClient = clientBuilder.build();
         httpRequestFactory = new HttpComponentsClientHttpRequestFactory();
         httpRequestFactory.setHttpClient(httpClient);
+        httpRequestFactory.setConnectionRequestTimeout(30000);
+        httpRequestFactory.setConnectTimeout(30000);
+        httpRequestFactory.setReadTimeout(30000);
     }
 
     public String getHostUrl() {
